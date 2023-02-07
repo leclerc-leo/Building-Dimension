@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.fabricmc.CreativeWorld.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "EndPortalBlockMixin",
+    "NetherPortalBlockMixin"
+  ],
+  "client": [
+    "CreativeWorldMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
