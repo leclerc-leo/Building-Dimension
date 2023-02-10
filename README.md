@@ -17,6 +17,4 @@ When going back to the Overworld, you will be teleported where you were before e
 
 ## TODO
 
-- [ ] Prevent Experience from being shared between the Creative World and the Overworld
-- [ ] Prevent Effects from being shared between the Creative World and the Overworld
-- [ ] Allow Chunks to be synchronised from the overworld to the Creative World `/creative sync`
+- [ ] Optimise the chunk synchronisation

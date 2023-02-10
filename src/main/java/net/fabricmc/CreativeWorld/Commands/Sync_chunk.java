@@ -2,51 +2,57 @@ package net.fabricmc.CreativeWorld.Commands;
 
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.CreativeWorld.CreativeWorld;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.util.math.Position;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
+import java.util.LinkedList;
+import java.util.Objects;
+import java.util.Queue;
+
 public class Sync_chunk {
 
-    public static RegistryKey<World> CREATIVE_OVERWORLD_KEY = CreativeWorld.OVERWORLD_WORLD_KEY;
+    public static MinecraftServer server;
 
-    public static int sync_chunk(CommandContext<ServerCommandSource> context) {
-        World world = context.getSource().getWorld();
-        Position position = context.getSource().getPosition();
-        Chunk chunk;
+    public static boolean needsSync = false;
 
-        if (world.getRegistryKey() == World.OVERWORLD) {
+    public static final Queue<Chunk> chunksToSync = new LinkedList<>();
 
-            int x = (int) (position.getX() / 16);
-            int z = (int) (position.getZ() / 16);
-            chunk = world.getChunk(x , z);
+    public static final RegistryKey<World> CREATIVE_OVERWORLD_KEY = CreativeWorld.OVERWORLD_WORLD_KEY;
 
-        } else if (world.getRegistryKey() == CREATIVE_OVERWORLD_KEY) {
+    public static int sync_chunk_one(CommandContext<ServerCommandSource> context) {
 
-            int x = (int) (position.getX() / 16);
-            int z = (int) (position.getZ() / 16);
-            World overworld = context.getSource().getServer().getWorld(World.OVERWORLD);
+        if ( server == null ) server = Objects.requireNonNull(context.getSource().getServer());
 
-            if (overworld == null) {
-                return -1;
+        int chunkX = (int) Math.floor(context.getSource().getPosition().x / 16);
+        int chunkZ = (int) Math.floor(context.getSource().getPosition().z / 16);
+
+        Chunk chunk = context.getSource().getWorld().getChunk(chunkX, chunkZ);
+        chunksToSync.add(chunk);
+
+        needsSync = true;
+
+        return 0;
+    }
+
+    public static int sync_chunk_radius(CommandContext<ServerCommandSource> context) {
+
+        if ( server == null ) server = Objects.requireNonNull(context.getSource().getServer());
+        int radius = context.getArgument("radius", Integer.class);
+
+        for (int x = -radius; x <= radius; x++) {
+            for (int z = -radius; z <= radius; z++) {
+                int chunkX = (int) Math.floor(context.getSource().getPosition().x / 16) + x;
+                int chunkZ = (int) Math.floor(context.getSource().getPosition().z / 16) + z;
+
+                Chunk chunk = context.getSource().getWorld().getChunk(chunkX, chunkZ);
+                chunksToSync.add(chunk);
             }
-
-            chunk = overworld.getChunk(x , z);
-
-        } else {
-
-            return -1;
         }
 
-        // we want to sync this chunk to the creative world by putting the chunk in the creative world
-
-        World creative_world = context.getSource().getServer().getWorld(CREATIVE_OVERWORLD_KEY);
-
-        if (creative_world == null) {
-            return -1;
-        }
+        needsSync = true;
 
         return 0;
     }
