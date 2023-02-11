@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EndPortalBlock.class)
-        abstract class EndPortalBlockMixin {
+abstract class EndPortalBlockMixin {
     @Inject(
             method = "onEntityCollision",
             at = @At(
@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
             cancellable = true
     )
     private void disableEndPortal(BlockState state, World world, BlockPos pos, Entity entity, CallbackInfo ci) {
-        if (entity.getWorld().getRegistryKey() == BuildingDimension.OVERWORLD_WORLD_KEY) {
+        if (world.getRegistryKey() == BuildingDimension.OVERWORLD_WORLD_KEY) {
             ci.cancel();
         }
     }

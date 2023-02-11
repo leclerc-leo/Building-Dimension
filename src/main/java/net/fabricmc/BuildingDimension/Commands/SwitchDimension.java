@@ -2,7 +2,7 @@ package net.fabricmc.BuildingDimension.Commands;
 
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.BuildingDimension.BuildingDimension;
-import net.fabricmc.BuildingDimension.World.WorldData;
+import net.fabricmc.BuildingDimension.World.SavedData;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.minecraft.inventory.EnderChestInventory;
 import net.minecraft.inventory.Inventory;
@@ -19,12 +19,10 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
-import static net.fabricmc.BuildingDimension.World.WorldData.getWorldData;
-
-public class Switch_dim {
+public class SwitchDimension {
 
     private static final RegistryKey<World> OVERWORLD_WORLD_KEY = BuildingDimension.OVERWORLD_WORLD_KEY;
-    private static WorldData WORLD_DATA = BuildingDimension.WORLD_DATA;
+    private static SavedData WORLD_DATA = BuildingDimension.WORLD_DATA;
 
     private static final Logger LOGGER = BuildingDimension.LOGGER;
 
@@ -44,7 +42,7 @@ public class Switch_dim {
         if (WORLD_DATA == null) {
             MinecraftServer server = context.getSource().getServer();
 
-            WORLD_DATA = getWorldData(server);
+            WORLD_DATA = SavedData.getSavedData(server);
             BuildingDimension.WORLD_DATA = WORLD_DATA;
         }
 

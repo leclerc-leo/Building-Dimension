@@ -1,11 +1,13 @@
 package net.fabricmc.BuildingDimension.Events;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.ChunkSerializer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 
-import static net.fabricmc.BuildingDimension.Commands.Sync_chunk.*;
+import static net.fabricmc.BuildingDimension.Commands.SyncDimension.*;
 
 public class SyncDimension {
 
@@ -31,11 +33,16 @@ public class SyncDimension {
 
         WorldChunk creative_chunk = server.getWorld(CREATIVE_OVERWORLD_KEY).getChunk(ChunkX, ChunkZ);
 
-        for (int x = 0; x < 16; x++) {
+        for (int y = -63; y < 320; y++) {
             for (int z = 0; z < 16; z++) {
-                for (int y = 0; y < 256; y++) {
+                for (int x = 0; x < 16; x++) {
                     BlockPos pos = new BlockPos(x, y, z);
-                    creative_chunk.setBlockState(pos, chunk.getBlockState(pos), false);
+                    BlockState state = chunk.getBlockState(pos);
+                    BlockState creative_state = creative_chunk.getBlockState(pos);
+
+                    if (state != creative_state) {
+                        creative_chunk.setBlockState(pos, state, false);
+                    }
                 }
             }
         }

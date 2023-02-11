@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
 
-public class Sync_chunk {
+public class SyncDimension {
 
     public static MinecraftServer server;
 

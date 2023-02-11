@@ -14,6 +14,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.TeleportTarget;
@@ -22,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class WorldData extends PersistentState {
+public class SavedData extends PersistentState {
 
     private final Map<UUID,
             Map<String,
@@ -141,8 +142,8 @@ public class WorldData extends PersistentState {
         return nbt;
     }
 
-    public static @NotNull WorldData createFromNbt(@NotNull NbtCompound nbt) {
-        WorldData worldInventories = new WorldData();
+    public static @NotNull SavedData createFromNbt(@NotNull NbtCompound nbt) {
+        SavedData data = new SavedData();
 
         NbtCompound inventoriesNbt = nbt.getCompound("inventories");
 
@@ -163,10 +164,10 @@ public class WorldData extends PersistentState {
                 }
 
 
-                if (!worldInventories.inventories.containsKey(uuid)) {
-                    worldInventories.inventories.put(uuid, new HashMap<>());
+                if (!data.inventories.containsKey(uuid)) {
+                    data.inventories.put(uuid, new HashMap<>());
                 }
-                worldInventories.inventories.get(uuid).put(world, inventory);
+                data.inventories.get(uuid).put(world, inventory);
             });
 
         }
@@ -175,7 +176,7 @@ public class WorldData extends PersistentState {
 
         if (positionsNbt != null) {
             positionsNbt.getKeys().forEach(uuid -> {
-                worldInventories.positions.put(UUID.fromString(uuid), positionsNbt.getCompound(uuid));
+                data.positions.put(UUID.fromString(uuid), positionsNbt.getCompound(uuid));
             });
         }
 
@@ -193,7 +194,7 @@ public class WorldData extends PersistentState {
                     inventory.setStack(i, items.get(i));
                 }
 
-                worldInventories.enderChests.put(UUID.fromString(uuid), inventory);
+                data.enderChests.put(UUID.fromString(uuid), inventory);
             });
         }
 
@@ -201,7 +202,7 @@ public class WorldData extends PersistentState {
 
         if (experienceLevelsNbt != null) {
             experienceLevelsNbt.getKeys().forEach(uuid -> {
-                worldInventories.experienceLevels.put(UUID.fromString(uuid), experienceLevelsNbt.getInt(uuid));
+                data.experienceLevels.put(UUID.fromString(uuid), experienceLevelsNbt.getInt(uuid));
             });
         }
 
@@ -209,7 +210,7 @@ public class WorldData extends PersistentState {
 
         if (experienceProgressNbt != null) {
             experienceProgressNbt.getKeys().forEach(uuid -> {
-                worldInventories.experienceProgress.put(UUID.fromString(uuid), experienceProgressNbt.getFloat(uuid));
+                data.experienceProgress.put(UUID.fromString(uuid), experienceProgressNbt.getFloat(uuid));
             });
         }
 
@@ -225,7 +226,7 @@ public class WorldData extends PersistentState {
                     effectsNbt.getCompound(effect).getBoolean("Ambient");
                     effectsNbt.getCompound(effect).getBoolean("ShowParticle");
                 });
-                worldInventories.effects.put(UUID.fromString(uuid), effects);
+                data.effects.put(UUID.fromString(uuid), effects);
             });
         }
 
@@ -243,25 +244,25 @@ public class WorldData extends PersistentState {
                     });
                     advancements.put(new Identifier(advancement), criterias);
                 });
-                worldInventories.advancements.put(UUID.fromString(uuid), advancements);
+                data.advancements.put(UUID.fromString(uuid), advancements);
             });
         }
 
-        return worldInventories;
+        return data;
     }
 
-    public static @NotNull WorldData getWorldData(@NotNull MinecraftServer server) {
+    public static @NotNull SavedData getSavedData(@NotNull MinecraftServer server) {
         PersistentStateManager persistentStateManager = server.
             getWorld(World.OVERWORLD).getPersistentStateManager();
 
-        WorldData worldInventories = persistentStateManager.getOrCreate(
-                WorldData::createFromNbt,
-                WorldData::new,
+        SavedData data = persistentStateManager.getOrCreate(
+                SavedData::createFromNbt,
+                SavedData::new,
             BuildingDimension.MOD_ID);
 
-        worldInventories.markDirty();
+        data.markDirty();
 
-        return worldInventories;
+        return data;
     }
 
     public void saveInventory(@NotNull ServerWorld world, @NotNull ServerPlayerEntity player) {
@@ -309,8 +310,9 @@ public class WorldData extends PersistentState {
     public TeleportTarget loadPosition(@NotNull ServerPlayerEntity player) {
         UUID uuid = player.getUuid();
         if (!positions.containsKey(uuid)) {
+            BlockPos spawn = player.getServer().getOverworld().getSpawnPos();
             return new TeleportTarget(
-                new net.minecraft.util.math.Vec3d(0, 0, 0),
+                new net.minecraft.util.math.Vec3d(spawn.getX(), spawn.getY(), spawn.getZ()),
                 new net.minecraft.util.math.Vec3d(0, 0, 0),
                 0,
                 0

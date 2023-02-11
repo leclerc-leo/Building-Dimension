@@ -21,7 +21,7 @@ abstract class NetherPortalBlockMixin {
             cancellable = true
     )
     private void disableNetherPortal(BlockState state, World world, BlockPos pos, Entity entity, CallbackInfo ci) {
-        if (entity.getWorld().getRegistryKey() == BuildingDimension.OVERWORLD_WORLD_KEY) {
+        if (world.getRegistryKey() == BuildingDimension.OVERWORLD_WORLD_KEY) {
             ci.cancel();
         }
     }
