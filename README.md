@@ -14,8 +14,8 @@ You can then create schematics of your builds to build them alter in the overwor
 ## Commands
 
 `/creative` allows you to switch between dimension  
-`/creative teleport <player>` allows you to teleport to a player in the Creative World  
-`/creative sync <radius>` allows you to synchronise chunks from the overworld to the Creative World
+`/creative teleport ‹player›` allows you to teleport to a player in the Creative World  
+`/creative sync ‹radius›` allows you to synchronise chunks from the overworld to the Creative World
 
 ## Restrictions 
 

@@ -1,12 +1,12 @@
-package net.fabricmc.CreativeWorld;
+package net.fabricmc.BuildingDimension;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import net.fabricmc.CreativeWorld.Commands.Switch_dim;
-import net.fabricmc.CreativeWorld.Commands.Sync_chunk;
-import net.fabricmc.CreativeWorld.Commands.Teleport;
-import net.fabricmc.CreativeWorld.Events.SyncDimension;
-import net.fabricmc.CreativeWorld.World.WorldData;
+import net.fabricmc.BuildingDimension.Commands.Switch_dim;
+import net.fabricmc.BuildingDimension.Commands.Sync_chunk;
+import net.fabricmc.BuildingDimension.Commands.Teleport;
+import net.fabricmc.BuildingDimension.Events.SyncDimension;
+import net.fabricmc.BuildingDimension.World.WorldData;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.CommandRegistryAccess;
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
-public class CreativeWorld implements ModInitializer {
+public class BuildingDimension implements ModInitializer {
 
 	public static final String MOD_ID = "creative_world";
 	public static final Logger LOGGER = LoggerFactory.getLogger("creative_world");

@@ -1,8 +1,8 @@
-package net.fabricmc.CreativeWorld.mixin;
+package net.fabricmc.BuildingDimension.mixin;
 
-import net.fabricmc.CreativeWorld.CreativeWorld;
+import net.fabricmc.BuildingDimension.BuildingDimension;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.EndPortalBlock;
+import net.minecraft.block.NetherPortalBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(EndPortalBlock.class)
-        abstract class EndPortalBlockMixin {
+@Mixin(NetherPortalBlock.class)
+abstract class NetherPortalBlockMixin {
     @Inject(
             method = "onEntityCollision",
             at = @At(
@@ -20,8 +20,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
             ),
             cancellable = true
     )
-    private void disableEndPortal(BlockState state, World world, BlockPos pos, Entity entity, CallbackInfo ci) {
-        if (entity.getWorld().getRegistryKey() == CreativeWorld.OVERWORLD_WORLD_KEY) {
+    private void disableNetherPortal(BlockState state, World world, BlockPos pos, Entity entity, CallbackInfo ci) {
+        if (entity.getWorld().getRegistryKey() == BuildingDimension.OVERWORLD_WORLD_KEY) {
             ci.cancel();
         }
     }

@@ -1,8 +1,8 @@
-package net.fabricmc.CreativeWorld.Commands;
+package net.fabricmc.BuildingDimension.Commands;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.fabricmc.CreativeWorld.CreativeWorld;
+import net.fabricmc.BuildingDimension.BuildingDimension;
 import net.minecraft.command.EntitySelector;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -14,7 +14,7 @@ public class Teleport {
 
         ServerPlayerEntity player = source.getPlayer();
 
-        if ( !player.getWorld().getRegistryKey().equals(CreativeWorld.OVERWORLD_WORLD_KEY) ) {
+        if ( !player.getWorld().getRegistryKey().equals(BuildingDimension.OVERWORLD_WORLD_KEY) ) {
             player.sendMessage(Text.literal("You must be in the creative world to use this command"));
             return 0;
         }
@@ -22,7 +22,7 @@ public class Teleport {
         EntitySelector targetSelector = context.getArgument("player", EntitySelector.class);
         ServerPlayerEntity target = targetSelector.getPlayer(context.getSource());
 
-        if ( target == null || !target.getWorld().getRegistryKey().equals(CreativeWorld.OVERWORLD_WORLD_KEY) ) {
+        if ( target == null || !target.getWorld().getRegistryKey().equals(BuildingDimension.OVERWORLD_WORLD_KEY) ) {
             player.sendMessage(Text.literal("The target player must be in the creative world to use this command"));
             return 0;
         }

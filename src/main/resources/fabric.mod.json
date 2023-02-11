@@ -3,7 +3,7 @@
   "id": "creative_world",
   "version": "${version}",
 
-  "name": "Creative World",
+  "name": "Building Dimension",
   "description": "A mod that allows you to build in creative with a single command.",
   "authors": [
     "Léo LECLERC"
@@ -18,7 +18,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.fabricmc.CreativeWorld.CreativeWorld"
+      "net.fabricmc.BuildingDimension.BuildingDimension"
     ]
   },
   "mixins": [

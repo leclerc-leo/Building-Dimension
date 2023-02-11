@@ -1,11 +1,11 @@
-package net.fabricmc.CreativeWorld.Events;
+package net.fabricmc.BuildingDimension.Events;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 
-import static net.fabricmc.CreativeWorld.Commands.Sync_chunk.*;
+import static net.fabricmc.BuildingDimension.Commands.Sync_chunk.*;
 
 public class SyncDimension {
 

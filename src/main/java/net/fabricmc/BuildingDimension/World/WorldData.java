@@ -1,6 +1,6 @@
-package net.fabricmc.CreativeWorld.World;
+package net.fabricmc.BuildingDimension.World;
 
-import net.fabricmc.CreativeWorld.CreativeWorld;
+import net.fabricmc.BuildingDimension.BuildingDimension;
 import net.minecraft.advancement.Advancement;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerInventory;
@@ -58,7 +58,7 @@ public class WorldData extends PersistentState {
 
                 NbtCompound inventoryNbt = new NbtCompound();
                 Inventories.writeNbt(inventoryNbt, items);
-                inventoriesNbt.put(uuid.toString(), inventoryNbt);
+                inventoriesNbt.put(uuid.toString() + "::" + world, inventoryNbt);
             });
 
         });
@@ -148,19 +148,27 @@ public class WorldData extends PersistentState {
 
         if (inventoriesNbt != null) {
 
-            inventoriesNbt.getKeys().forEach(uuid -> {
-                NbtCompound inventoryNbt = inventoriesNbt.getCompound(uuid);
+            inventoriesNbt.getKeys().forEach(uuidWorld -> {
+                String[] uuidWorldSplit = uuidWorld.split("::");
+                UUID uuid = UUID.fromString(uuidWorldSplit[0]);
+                String world = uuidWorldSplit[1];
+
+                NbtCompound inventoryNbt = inventoriesNbt.getCompound(uuidWorld);
                 DefaultedList<ItemStack> items = DefaultedList.ofSize(36, ItemStack.EMPTY);
                 Inventories.readNbt(inventoryNbt, items);
 
-                Inventory inventory = new PlayerInventory(null);
+                PlayerInventory inventory = new PlayerInventory(null);
                 for (int i = 0; i < items.size(); i++) {
                     inventory.setStack(i, items.get(i));
                 }
 
-                worldInventories.inventories.put(UUID.fromString(uuid), new HashMap<>());
-                worldInventories.inventories.get(UUID.fromString(uuid)).put(World.OVERWORLD.toString(), inventory);
+
+                if (!worldInventories.inventories.containsKey(uuid)) {
+                    worldInventories.inventories.put(uuid, new HashMap<>());
+                }
+                worldInventories.inventories.get(uuid).put(world, inventory);
             });
+
         }
 
         NbtCompound positionsNbt = nbt.getCompound("positions");
@@ -249,7 +257,7 @@ public class WorldData extends PersistentState {
         WorldData worldInventories = persistentStateManager.getOrCreate(
                 WorldData::createFromNbt,
                 WorldData::new,
-            CreativeWorld.MOD_ID);
+            BuildingDimension.MOD_ID);
 
         worldInventories.markDirty();
 

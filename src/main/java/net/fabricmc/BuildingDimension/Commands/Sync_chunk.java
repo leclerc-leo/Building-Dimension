@@ -1,7 +1,7 @@
-package net.fabricmc.CreativeWorld.Commands;
+package net.fabricmc.BuildingDimension.Commands;
 
 import com.mojang.brigadier.context.CommandContext;
-import net.fabricmc.CreativeWorld.CreativeWorld;
+import net.fabricmc.BuildingDimension.BuildingDimension;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.registry.RegistryKey;
@@ -20,7 +20,7 @@ public class Sync_chunk {
 
     public static final Queue<Chunk> chunksToSync = new LinkedList<>();
 
-    public static final RegistryKey<World> CREATIVE_OVERWORLD_KEY = CreativeWorld.OVERWORLD_WORLD_KEY;
+    public static final RegistryKey<World> CREATIVE_OVERWORLD_KEY = BuildingDimension.OVERWORLD_WORLD_KEY;
 
     public static int sync_chunk_one(CommandContext<ServerCommandSource> context) {
 

@@ -1,8 +1,8 @@
-package net.fabricmc.CreativeWorld.Commands;
+package net.fabricmc.BuildingDimension.Commands;
 
 import com.mojang.brigadier.context.CommandContext;
-import net.fabricmc.CreativeWorld.CreativeWorld;
-import net.fabricmc.CreativeWorld.World.WorldData;
+import net.fabricmc.BuildingDimension.BuildingDimension;
+import net.fabricmc.BuildingDimension.World.WorldData;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.minecraft.inventory.EnderChestInventory;
 import net.minecraft.inventory.Inventory;
@@ -19,14 +19,14 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
-import static net.fabricmc.CreativeWorld.World.WorldData.getWorldData;
+import static net.fabricmc.BuildingDimension.World.WorldData.getWorldData;
 
 public class Switch_dim {
 
-    private static final RegistryKey<World> OVERWORLD_WORLD_KEY = CreativeWorld.OVERWORLD_WORLD_KEY;
-    private static WorldData WORLD_DATA = CreativeWorld.WORLD_DATA;
+    private static final RegistryKey<World> OVERWORLD_WORLD_KEY = BuildingDimension.OVERWORLD_WORLD_KEY;
+    private static WorldData WORLD_DATA = BuildingDimension.WORLD_DATA;
 
-    private static final Logger LOGGER = CreativeWorld.LOGGER;
+    private static final Logger LOGGER = BuildingDimension.LOGGER;
 
     public static int switch_dim(@NotNull CommandContext<ServerCommandSource> context) {
         Identifier current_dim = context.getSource().getWorld().getRegistryKey().getValue();
@@ -45,7 +45,7 @@ public class Switch_dim {
             MinecraftServer server = context.getSource().getServer();
 
             WORLD_DATA = getWorldData(server);
-            CreativeWorld.WORLD_DATA = WORLD_DATA;
+            BuildingDimension.WORLD_DATA = WORLD_DATA;
         }
 
         if ( current_dim == World.OVERWORLD.getValue()) {
