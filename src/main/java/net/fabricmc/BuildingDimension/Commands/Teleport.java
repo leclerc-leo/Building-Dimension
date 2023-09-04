@@ -28,7 +28,7 @@ public class Teleport {
         }
 
         player.teleport(
-                target.getWorld(),
+                target.getServerWorld(),
                 target.getX(),
                 target.getY(),
                 target.getZ(),

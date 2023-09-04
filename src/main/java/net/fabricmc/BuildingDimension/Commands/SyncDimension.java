@@ -2,9 +2,9 @@ package net.fabricmc.BuildingDimension.Commands;
 
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.BuildingDimension.BuildingDimension;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 

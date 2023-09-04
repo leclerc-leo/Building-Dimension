@@ -10,7 +10,6 @@ import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 import static net.fabricmc.BuildingDimension.Commands.SyncDimension.*;
 
@@ -54,10 +53,9 @@ public class SyncDimension {
         int ChunkZ = chunk.getPos().z;
 
         WorldChunk creative_chunk = server.getWorld(CREATIVE_OVERWORLD_KEY).getChunk(ChunkX, ChunkZ);
-        Stream<BlockPos> streamToCopy = creative_chunk.getLightSourcesStream();
         Set<Vec3i> posToProcess = new HashSet<>();
 
-        streamToCopy.forEach(pos -> {
+        creative_chunk.forEachLightSource((pos, blockState) -> {
             posToProcess.add(new Vec3i(pos.getX(), pos.getY(), pos.getZ()));
         });
 
@@ -84,13 +82,12 @@ public class SyncDimension {
     private static void postProcess(WorldChunk chunk) {
         chunk.runPostProcessing();
 
-        Stream<BlockPos> lightSources = chunk.getLightSourcesStream();
         LightingProvider lightingProvider = chunk.getWorld().getChunkManager().getLightingProvider();
 
         if (PosToProcess.containsKey(chunk.getPos())) {
             PosToProcess.get(chunk.getPos()).forEach(pos -> lightingProvider.checkBlock(new BlockPos(pos.getX(), pos.getY(), pos.getZ())));
         }
 
-        lightSources.forEach(lightingProvider::checkBlock);
+        chunk.forEachLightSource((pos, blockState) -> lightingProvider.checkBlock(pos));
     }
 }
