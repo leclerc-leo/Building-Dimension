@@ -8,6 +8,9 @@
   "authors": [
     "Léo LECLERC"
   ],
+  "contributors": [
+    "feandrad (Felis)"
+  ],
   "contact": {
     "sources": "https://github.com/ActuallySleeping/CreativeWorld"
   },
@@ -26,9 +29,9 @@
   ],
 
   "depends": {
-    "fabricloader": ">=0.14.11",
+    "fabricloader": ">=0.14.21",
     "fabric-api": "*",
-    "minecraft": "~1.19.2",
+    "minecraft": ">=1.19.3",
     "java": ">=17"
   },
   "suggests": {

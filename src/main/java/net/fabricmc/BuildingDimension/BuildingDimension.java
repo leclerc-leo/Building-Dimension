@@ -10,11 +10,11 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionOptions;
 import org.jetbrains.annotations.NotNull;
@@ -31,12 +31,12 @@ public class BuildingDimension implements ModInitializer {
 	public static final Identifier OVERWORLD = new Identifier(MOD_ID, "overworld");
 
 	public static final RegistryKey<DimensionOptions> OVERWORLD_KEY = RegistryKey.of(
-			Registry.DIMENSION_KEY,
+			RegistryKeys.DIMENSION,
 			OVERWORLD
 	);
 
 	public static RegistryKey<World> OVERWORLD_WORLD_KEY = RegistryKey.of(
-			Registry.WORLD_KEY,
+			RegistryKeys.WORLD,
 			OVERWORLD_KEY.getValue()
 	);
 
@@ -48,7 +48,7 @@ public class BuildingDimension implements ModInitializer {
 		registerEvents();
 
 		OVERWORLD_WORLD_KEY = RegistryKey.of(
-				Registry.WORLD_KEY,
+				RegistryKeys.WORLD,
 				OVERWORLD
 		);
 	}
