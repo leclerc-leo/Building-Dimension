@@ -44,6 +44,8 @@ public class BuildingDimension implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		Configs.load();
+
 		CommandRegistrationCallback.EVENT.register(this::registerCommands);
 		registerEvents();
 
@@ -52,15 +54,15 @@ public class BuildingDimension implements ModInitializer {
 				OVERWORLD
 		);
 	}
-
 	private void registerCommands(@NotNull CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
 		dispatcher
 				.register(literal("creative")
 						.executes(SwitchDimension::switch_dim)
 
 						.then(literal("sync")
+								.requires(source -> source.hasPermissionLevel( Configs.OP_SYNC ? 2 : 0))
 								.executes(SyncDimension::sync_chunk_one)
-								.then(CommandManager.argument("radius", IntegerArgumentType.integer(0, 8))
+								.then(CommandManager.argument("radius", IntegerArgumentType.integer(1, Configs.MAX_RADIUS))
 												.executes(SyncDimension::sync_chunk_radius)
 								)
 						)
