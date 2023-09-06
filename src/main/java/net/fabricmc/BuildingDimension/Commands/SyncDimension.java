@@ -26,6 +26,8 @@ public class SyncDimension {
 
         if ( server == null ) server = Objects.requireNonNull(context.getSource().getServer());
 
+        BuildingDimension.log("Syncing chunk at " + context.getSource().getPosition().toString());
+
         int chunkX = (int) Math.floor(context.getSource().getPosition().x / 16);
         int chunkZ = (int) Math.floor(context.getSource().getPosition().z / 16);
 
@@ -41,6 +43,8 @@ public class SyncDimension {
 
         if ( server == null ) server = Objects.requireNonNull(context.getSource().getServer());
         int radius = context.getArgument("radius", Integer.class);
+
+        BuildingDimension.log("Syncing chunks in radius " + radius + " around " + context.getSource().getPosition().toString());
 
         for (int x = -radius; x <= radius; x++) {
             for (int z = -radius; z <= radius; z++) {

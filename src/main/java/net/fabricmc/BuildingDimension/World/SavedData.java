@@ -45,7 +45,7 @@ public class SavedData extends PersistentState {
 
         NbtCompound inventoriesNbt = new NbtCompound();
 
-        inventories.forEach((uuid, worldInv) -> {
+        inventories.forEach((uuid, worldInv) ->
 
             worldInv.forEach((world, inventory) -> {
 
@@ -60,17 +60,15 @@ public class SavedData extends PersistentState {
                 NbtCompound inventoryNbt = new NbtCompound();
                 Inventories.writeNbt(inventoryNbt, items);
                 inventoriesNbt.put(uuid.toString() + "::" + world, inventoryNbt);
-            });
+            })
 
-        });
+        );
         nbt.put("inventories", inventoriesNbt);
 
         NbtCompound positionsNbt = new NbtCompound();
-        positions.forEach((uuid, position) -> {
-
-            positionsNbt.put(uuid.toString(), position);
-
-        });
+        positions.forEach((uuid, position) ->
+                positionsNbt.put(uuid.toString(), position)
+        );
         nbt.put("positions", positionsNbt);
 
         NbtCompound enderChestsNbt = new NbtCompound();
@@ -92,19 +90,15 @@ public class SavedData extends PersistentState {
         nbt.put("enderChests", enderChestsNbt);
 
         NbtCompound experienceLevelsNbt = new NbtCompound();
-        experienceLevels.forEach((uuid, level) -> {
-
-            experienceLevelsNbt.putInt(uuid.toString(), level);
-
-        });
+        experienceLevels.forEach((uuid, level) ->
+                experienceLevelsNbt.putInt(uuid.toString(), level)
+        );
         nbt.put("experienceLevels", experienceLevelsNbt);
 
         NbtCompound experienceProgressNbt = new NbtCompound();
-        experienceProgress.forEach((uuid, progress) -> {
-
-            experienceProgressNbt.putFloat(uuid.toString(), progress);
-
-        });
+        experienceProgress.forEach((uuid, progress) ->
+            experienceProgressNbt.putFloat(uuid.toString(), progress)
+        );
         nbt.put("experienceProgress", experienceProgressNbt);
 
         NbtCompound effectsNbt = new NbtCompound();
@@ -128,9 +122,9 @@ public class SavedData extends PersistentState {
             advancements.forEach((advancement, criterias) -> {
 
                 NbtCompound criteriaNbt = new NbtCompound();
-                criterias.forEach((criteria) -> {
-                    criteriaNbt.putString(criteria, criteria);
-                });
+                criterias.forEach((criteria) ->
+                    criteriaNbt.putString(criteria, criteria)
+                );
                 advancementNbt.put(advancement.toString(), criteriaNbt);
 
             });
@@ -175,9 +169,9 @@ public class SavedData extends PersistentState {
         NbtCompound positionsNbt = nbt.getCompound("positions");
 
         if (positionsNbt != null) {
-            positionsNbt.getKeys().forEach(uuid -> {
-                data.positions.put(UUID.fromString(uuid), positionsNbt.getCompound(uuid));
-            });
+            positionsNbt.getKeys().forEach(uuid ->
+                data.positions.put(UUID.fromString(uuid), positionsNbt.getCompound(uuid))
+            );
         }
 
         NbtCompound enderChestsNbt = nbt.getCompound("enderChests");
@@ -201,17 +195,17 @@ public class SavedData extends PersistentState {
         NbtCompound experienceLevelsNbt = nbt.getCompound("experienceLevels");
 
         if (experienceLevelsNbt != null) {
-            experienceLevelsNbt.getKeys().forEach(uuid -> {
-                data.experienceLevels.put(UUID.fromString(uuid), experienceLevelsNbt.getInt(uuid));
-            });
+            experienceLevelsNbt.getKeys().forEach(uuid ->
+                data.experienceLevels.put(UUID.fromString(uuid), experienceLevelsNbt.getInt(uuid))
+            );
         }
 
         NbtCompound experienceProgressNbt = nbt.getCompound("experienceProgress");
 
         if (experienceProgressNbt != null) {
-            experienceProgressNbt.getKeys().forEach(uuid -> {
-                data.experienceProgress.put(UUID.fromString(uuid), experienceProgressNbt.getFloat(uuid));
-            });
+            experienceProgressNbt.getKeys().forEach(uuid ->
+                data.experienceProgress.put(UUID.fromString(uuid), experienceProgressNbt.getFloat(uuid))
+            );
         }
 
         NbtCompound effectsNbt = nbt.getCompound("effects");
@@ -239,9 +233,9 @@ public class SavedData extends PersistentState {
                 advancementNbt.getKeys().forEach(advancement -> {
                     NbtCompound criteriaNbt = advancementNbt.getCompound(advancement);
                     Set<String> criterias = new HashSet<>();
-                    criteriaNbt.getKeys().forEach(criteria -> {
-                        criterias.add(criteriaNbt.getString(criteria));
-                    });
+                    criteriaNbt.getKeys().forEach(criteria ->
+                        criterias.add(criteriaNbt.getString(criteria))
+                    );
                     advancements.put(new Identifier(advancement), criterias);
                 });
                 data.advancements.put(UUID.fromString(uuid), advancements);
@@ -252,8 +246,8 @@ public class SavedData extends PersistentState {
     }
 
     public static @NotNull SavedData getSavedData(@NotNull MinecraftServer server) {
-        PersistentStateManager persistentStateManager = server.
-            getWorld(World.OVERWORLD).getPersistentStateManager();
+        PersistentStateManager persistentStateManager = Objects.requireNonNull(server.
+                getWorld(World.OVERWORLD)).getPersistentStateManager();
 
         SavedData data = persistentStateManager.getOrCreate(
                 SavedData::createFromNbt,
@@ -266,6 +260,9 @@ public class SavedData extends PersistentState {
     }
 
     public void saveInventory(@NotNull ServerWorld world, @NotNull ServerPlayerEntity player) {
+        BuildingDimension.log("Saving inventory for " + player.getName().getString());
+        StringBuilder items = new StringBuilder();
+
         UUID uuid = player.getUuid();
         String worldKey = world.getRegistryKey().getValue().toString();
         Inventory inventory = new PlayerInventory(null);
@@ -276,12 +273,16 @@ public class SavedData extends PersistentState {
 
         for (int i = 0; i < player.getInventory().size(); i++) {
             inventory.setStack(i, player.getInventory().getStack(i));
+            items.append(player.getInventory().getStack(i).toString()).append(",");
         }
 
+        BuildingDimension.log("Inventory items: " + items);
         inventories.get(uuid).put(worldKey, inventory);
     }
 
     public Inventory loadInventory(@NotNull ServerWorld world, @NotNull ServerPlayerEntity player) {
+        BuildingDimension.log("Loading inventory for " + player.getName().getString());
+
         UUID uuid = player.getUuid();
         String worldKey = world.getRegistryKey().getValue().toString();
 
@@ -297,6 +298,8 @@ public class SavedData extends PersistentState {
     }
 
     public void savePosition(@NotNull ServerPlayerEntity player) {
+        BuildingDimension.log("Saving position for " + player.getName().getString() + " at " + player.getPos().toString());
+
         UUID uuid = player.getUuid();
         NbtCompound position = new NbtCompound();
         position.putDouble("x", player.getX());
@@ -308,9 +311,11 @@ public class SavedData extends PersistentState {
     }
 
     public TeleportTarget loadPosition(@NotNull ServerPlayerEntity player) {
+        BuildingDimension.log("Loading position for " + player.getName().getString());
+
         UUID uuid = player.getUuid();
         if (!positions.containsKey(uuid)) {
-            BlockPos spawn = player.getServer().getOverworld().getSpawnPos();
+            BlockPos spawn = Objects.requireNonNull(player.getServer()).getOverworld().getSpawnPos();
             return new TeleportTarget(
                 new net.minecraft.util.math.Vec3d(spawn.getX(), spawn.getY(), spawn.getZ()),
                 new net.minecraft.util.math.Vec3d(0, 0, 0),
@@ -336,17 +341,24 @@ public class SavedData extends PersistentState {
     }
 
     public void saveEnderChest(@NotNull ServerPlayerEntity player){
+        BuildingDimension.log("Saving ender chest for " + player.getName().getString());
+        StringBuilder items = new StringBuilder();
+
         UUID uuid = player.getUuid();
         EnderChestInventory inventory = new EnderChestInventory();
 
         for (int i = 0; i < player.getEnderChestInventory().size(); i++) {
             inventory.setStack(i, player.getEnderChestInventory().getStack(i));
+            items.append(player.getEnderChestInventory().getStack(i).toString()).append(",");
         }
 
+        BuildingDimension.log("Ender chest items: " + items);
         enderChests.put(uuid, inventory);
     }
 
     public EnderChestInventory loadEnderChest(@NotNull ServerPlayerEntity player){
+        BuildingDimension.log("Loading ender chest for " + player.getName().getString());
+
         UUID uuid = player.getUuid();
         if (!enderChests.containsKey(uuid)) {
             enderChests.put(uuid, new EnderChestInventory());
@@ -355,12 +367,16 @@ public class SavedData extends PersistentState {
     }
 
     public void saveExperience(@NotNull ServerPlayerEntity player){
+        BuildingDimension.log("Saving experience for " + player.getName().getString() + " at " + player.experienceLevel + " levels and " + player.experienceProgress + " progress");
+
         UUID uuid = player.getUuid();
         experienceLevels.put(uuid, player.experienceLevel);
         experienceProgress.put(uuid, player.experienceProgress);
     }
 
     public void loadExperience(@NotNull ServerPlayerEntity player){
+        BuildingDimension.log("Loading experience for " + player.getName().getString() + " at " + experienceLevels.get(player.getUuid()) + " levels and " + experienceProgress.get(player.getUuid()) + " progress");
+
         UUID uuid = player.getUuid();
         if (!experienceLevels.containsKey(uuid)) {
             experienceLevels.put(uuid, 0);
@@ -373,11 +389,15 @@ public class SavedData extends PersistentState {
     }
 
     public void saveEffects(@NotNull ServerPlayerEntity player){
+        BuildingDimension.log("Saving effects for " + player.getName().getString());
+
         UUID uuid = player.getUuid();
         effects.put(uuid, player.getStatusEffects().toArray(new StatusEffectInstance[0]));
     }
 
     public void loadEffects(@NotNull ServerPlayerEntity player){
+        BuildingDimension.log("Loading effects for " + player.getName().getString());
+
         UUID uuid = player.getUuid();
         if (!effects.containsKey(uuid)) {
             effects.put(uuid, new StatusEffectInstance[]{});
@@ -389,11 +409,13 @@ public class SavedData extends PersistentState {
     }
 
     public void saveAdvancements(@NotNull ServerPlayerEntity player){
+        BuildingDimension.log("Saving advancements for " + player.getName().getString());
+
         UUID uuid = player.getUuid();
 
         if(advancementsList == null){
             advancementsList = new HashMap<>();
-            for (Advancement advancement : player.getServer().getAdvancementLoader().getAdvancements()) {
+            for (Advancement advancement : Objects.requireNonNull(player.getServer()).getAdvancementLoader().getAdvancements()) {
                 advancementsList.put(advancement.getId(), advancement);
             }
         }
@@ -421,11 +443,13 @@ public class SavedData extends PersistentState {
     }
 
     public void loadAdvancements(@NotNull ServerPlayerEntity player){
+        BuildingDimension.log("Loading advancements for " + player.getName().getString());
+
         UUID uuid = player.getUuid();
 
         if(advancementsList == null){
             advancementsList = new HashMap<>();
-            for (Advancement advancement : player.getServer().getAdvancementLoader().getAdvancements()) {
+            for (Advancement advancement : Objects.requireNonNull(player.getServer()).getAdvancementLoader().getAdvancements()) {
                 advancementsList.put(advancement.getId(), advancement);
             }
         }

@@ -17,14 +17,11 @@ import net.minecraft.world.GameMode;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
 
 public class SwitchDimension {
 
     private static final RegistryKey<World> OVERWORLD_WORLD_KEY = BuildingDimension.OVERWORLD_WORLD_KEY;
     private static SavedData WORLD_DATA = BuildingDimension.WORLD_DATA;
-
-    private static final Logger LOGGER = BuildingDimension.LOGGER;
 
     public static int switch_dim(@NotNull CommandContext<ServerCommandSource> context) {
         Identifier current_dim = context.getSource().getWorld().getRegistryKey().getValue();
@@ -48,6 +45,8 @@ public class SwitchDimension {
 
         if ( current_dim == World.OVERWORLD.getValue()) {
 
+            BuildingDimension.log("Player : " + player.getName().getString() + " is switching to creative dimension");
+
             world = context.getSource().getServer().getWorld(OVERWORLD_WORLD_KEY);
             gameMode = GameMode.CREATIVE;
 
@@ -67,6 +66,8 @@ public class SwitchDimension {
             cleanPlayer(player);
 
         } else if ( current_dim == OVERWORLD_WORLD_KEY.getValue()) {
+
+            BuildingDimension.log("Player : " + player.getName().getString() + " is switching to survival dimension");
 
             world = context.getSource().getServer().getWorld(World.OVERWORLD);
             gameMode = GameMode.SURVIVAL;

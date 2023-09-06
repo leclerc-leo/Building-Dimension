@@ -74,6 +74,10 @@ public class BuildingDimension implements ModInitializer {
 				);
 	}
 
+	public static void log(String message) {
+		LOGGER.info(message);
+	}
+
 	private void registerEvents() {
 		net.fabricmc.BuildingDimension.Events.SyncDimension.init();
 	}
