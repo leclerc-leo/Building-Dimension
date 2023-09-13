@@ -48,7 +48,7 @@ public class Configs {
             writer.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            BuildingDimension.LOGGER.error("Failed to generate config file!");
         }
     }
 }
