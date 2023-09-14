@@ -52,9 +52,11 @@ public class Configs {
             FileWriter writer = new FileWriter(CONFIG_FILE);
 
             writer.write("# Max radius when syncing chunks (1 ~ 32)\n");
+            writer.write("# default : 8\n");
             writer.write("max_radius = 8\n\n");
 
             writer.write("# Whether only OPs can sync chunks (true : only OPs can sync, false : everyone can sync)\n");
+            writer.write("# default : true\n");
             writer.write("op_sync = true\n\n");
 
             writer.close();
