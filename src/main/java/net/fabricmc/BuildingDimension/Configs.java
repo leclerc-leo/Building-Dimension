@@ -24,8 +24,20 @@ public class Configs {
 
         Toml toml = new Toml().read(CONFIG_FILE);
 
-        MAX_RADIUS = Integer.max(1, Integer.min(32, toml.getLong("max_radius").intValue()));
-        OP_SYNC = toml.getBoolean("op_sync");
+        if (toml.contains("max_radius")) {
+            try {
+                MAX_RADIUS = Integer.max(1, Integer.min(32, toml.getLong("max_radius").intValue()));
+            } catch (Exception e) {
+                BuildingDimension.LOGGER.error("Invalid max_radius value! (1 ~ 32)");
+            }
+        }
+        if (toml.contains("op_sync")) {
+            try {
+                OP_SYNC = toml.getBoolean("op_sync");
+            } catch (Exception e) {
+                BuildingDimension.LOGGER.error("Invalid op_sync value! (true or false)");
+            }
+        }
     }
 
     private static void generate() {

@@ -56,6 +56,7 @@ public class SwitchDimension {
             WORLD_DATA.saveExperience(player);
             WORLD_DATA.saveEffects(player);
             WORLD_DATA.saveAdvancements(player);
+            WORLD_DATA.saveGameMode(player);
             target = new TeleportTarget(
                     player.getPos(),
                     player.getVelocity(),
@@ -70,7 +71,7 @@ public class SwitchDimension {
             BuildingDimension.log("Player : " + player.getName().getString() + " is switching to survival dimension");
 
             world = context.getSource().getServer().getWorld(World.OVERWORLD);
-            gameMode = GameMode.SURVIVAL;
+            gameMode = WORLD_DATA.loadGameMode(player);
 
             WORLD_DATA.saveInventory(context.getSource().getWorld(), player);
 
