@@ -1,0 +1,17 @@
+# Max radius when syncing chunks (1 ~ 32)
+# default : 8
+max_radius = 8
+
+# Whether only OPs can enter the building dimension (true : only OPs can enter, false : everyone can enter)
+# default : false
+only_ops = false
+
+# Can non OPs enter in spectator if only OPs can enter (true : non OPs enter in spectator, false : non OPs cannot enter)
+# the only_ops value must be true
+# default : true
+non_ops_spectators = true
+
+# Whether only OPs can sync chunks (true : only OPs can sync, false : everyone can sync)
+# default : true
+op_sync = true
+

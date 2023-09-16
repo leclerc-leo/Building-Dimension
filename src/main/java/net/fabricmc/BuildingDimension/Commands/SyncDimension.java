@@ -23,35 +23,31 @@ public class SyncDimension {
     public static final RegistryKey<World> CREATIVE_OVERWORLD_KEY = BuildingDimension.OVERWORLD_WORLD_KEY;
 
     public static int sync_chunk_one(CommandContext<ServerCommandSource> context) {
-
-        if ( server == null ) server = Objects.requireNonNull(context.getSource().getServer());
-
-        BuildingDimension.log("Syncing chunk at " + context.getSource().getPosition().toString());
-
-        int chunkX = (int) Math.floor(context.getSource().getPosition().x / 16);
-        int chunkZ = (int) Math.floor(context.getSource().getPosition().z / 16);
-
-        Chunk chunk = context.getSource().getWorld().getChunk(chunkX, chunkZ);
-        chunksToSync.add(chunk);
-
-        needsSync = true;
-
-        return 0;
+        return sync(context, 1);
     }
 
     public static int sync_chunk_radius(CommandContext<ServerCommandSource> context) {
+        return sync(context, context.getArgument("radius", Integer.class));
+    }
 
+    private static int sync(CommandContext<ServerCommandSource> context, int radius) {
         if ( server == null ) server = Objects.requireNonNull(context.getSource().getServer());
-        int radius = context.getArgument("radius", Integer.class);
 
         BuildingDimension.log("Syncing chunks in radius " + radius + " around " + context.getSource().getPosition().toString());
+
+        World world = context.getSource().getServer().getWorld(World.OVERWORLD);
+
+        if (world == null) {
+            BuildingDimension.log("Failed to sync chunks: world is null when getting chunks");
+            return -1;
+        }
 
         for (int x = -radius; x <= radius; x++) {
             for (int z = -radius; z <= radius; z++) {
                 int chunkX = (int) Math.floor(context.getSource().getPosition().x / 16) + x;
                 int chunkZ = (int) Math.floor(context.getSource().getPosition().z / 16) + z;
 
-                Chunk chunk = context.getSource().getWorld().getChunk(chunkX, chunkZ);
+                Chunk chunk = world.getChunk(chunkX, chunkZ);
                 chunksToSync.add(chunk);
             }
         }
