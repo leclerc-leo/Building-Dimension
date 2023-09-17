@@ -2,7 +2,6 @@ package net.fabricmc.BuildingDimension.Commands;
 
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.BuildingDimension.BuildingDimension;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.world.World;
@@ -19,8 +18,6 @@ public class SyncDimension {
     public static boolean needsSync = false;
 
     public static final Queue<Chunk> chunksToSync = new LinkedList<>();
-
-    public static final RegistryKey<World> CREATIVE_OVERWORLD_KEY = BuildingDimension.OVERWORLD_WORLD_KEY;
 
     public static int sync_chunk_one(CommandContext<ServerCommandSource> context) {
         return sync(context, 1);

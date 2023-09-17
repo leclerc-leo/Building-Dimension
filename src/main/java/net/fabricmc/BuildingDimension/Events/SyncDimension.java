@@ -57,7 +57,7 @@ public class SyncDimension {
         int ChunkX = chunk.getPos().x;
         int ChunkZ = chunk.getPos().z;
 
-        World creative_world = server.getWorld(CREATIVE_OVERWORLD_KEY);
+        /*World creative_world = server.getWorld(CREATIVE_OVERWORLD_KEY);
 
         if (creative_world == null) {
             BuildingDimension.log("Unable to sync chunk " + ChunkX + ", " + ChunkZ + " because creative world is null");
@@ -88,7 +88,7 @@ public class SyncDimension {
 
         PosToProcess.put(creative_chunk.getPos(), posToProcess);
         ChunksToProcess.add(creative_chunk);
-        needsProcessing = true;
+        needsProcessing = true;*/
     }
 
     private static void postProcess(@NotNull WorldChunk chunk) {

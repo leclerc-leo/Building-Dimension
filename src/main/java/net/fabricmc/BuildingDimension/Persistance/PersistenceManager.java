@@ -1,0 +1,48 @@
+package net.fabricmc.BuildingDimension.Persistance;
+
+import net.fabricmc.BuildingDimension.BuildingDimension;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.*;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
+
+public class PersistenceManager extends PersistentState {
+
+    private static NbtCompound saved_data = new NbtCompound();
+
+    @Override
+    public NbtCompound writeNbt(@NotNull NbtCompound nbt) {
+        return nbt.copyFrom(saved_data);
+    }
+
+    public static @NotNull PersistenceManager createFromNbt(@NotNull NbtCompound nbt) {
+        saved_data = new NbtCompound();
+        saved_data.copyFrom(nbt);
+        return new PersistenceManager();
+    }
+
+    public static @NotNull PersistenceManager getSavedData(@NotNull MinecraftServer server) {
+        PersistentStateManager persistentStateManager = Objects.requireNonNull(server.
+                getWorld(World.OVERWORLD)).getPersistentStateManager();
+
+        PersistenceManager data = persistentStateManager.getOrCreate(
+                PersistenceManager::createFromNbt,
+                PersistenceManager::new,
+            BuildingDimension.MOD_ID);
+
+        data.markDirty();
+
+        return data;
+    }
+
+    public static void save(@NotNull String id, @NotNull NbtElement nbt) {
+        saved_data.put(id, nbt);
+    }
+
+    public static NbtElement load(@NotNull String id) {
+        return saved_data.get(id);
+    }
+}

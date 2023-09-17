@@ -20,7 +20,7 @@ public class Teleport {
             return 0;
         }
 
-        if ( !player.getWorld().getRegistryKey().equals(BuildingDimension.OVERWORLD_WORLD_KEY) ) {
+        if ( !player.getWorld().getRegistryKey().getValue().getNamespace().equals(BuildingDimension.MOD_ID) ) {
             player.sendMessage(Text.literal("You must be in the creative world to use this command"));
             return 0;
         }
@@ -28,8 +28,11 @@ public class Teleport {
         EntitySelector targetSelector = context.getArgument("player", EntitySelector.class);
         ServerPlayerEntity target = targetSelector.getPlayer(context.getSource());
 
-        if ( target == null || !target.getWorld().getRegistryKey().equals(BuildingDimension.OVERWORLD_WORLD_KEY) ) {
-            player.sendMessage(Text.literal("The target player must be in the creative world to use this command"));
+        if ( target == null
+                || !target.getWorld().getRegistryKey().getValue().getNamespace().equals(BuildingDimension.MOD_ID)
+                || !target.getWorld().getRegistryKey().getValue().getNamespace().equals(player.getWorld().getRegistryKey().getValue().getNamespace())
+        ) {
+            player.sendMessage(Text.literal("The target player must be in the creative world to use this command and must be in the same dimension as you"));
             return 0;
         }
 
