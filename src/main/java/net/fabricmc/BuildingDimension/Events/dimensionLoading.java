@@ -11,7 +11,6 @@ import net.minecraft.world.World;
 import xyz.nucleoid.fantasy.Fantasy;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
 
-import java.awt.*;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;

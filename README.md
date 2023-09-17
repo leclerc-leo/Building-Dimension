@@ -7,7 +7,7 @@ It was tested with Minecraft 1.19.2 and Fabric Loader 0.14.13.
 
 ## Description
 
-This is adds a new dimension named the Creative World.  
+This adds a new dimension named the Creative World.  
 It is a dimension where you can build freely without any restrictions.  
 You can then create schematics of your builds to build them alter in the overworld.
 

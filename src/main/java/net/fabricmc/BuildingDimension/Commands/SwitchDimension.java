@@ -4,14 +4,12 @@ import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.BuildingDimension.BuildingDimension;
 import net.fabricmc.BuildingDimension.Persistance.PersistentPlayer;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
-import net.minecraft.client.RunArgs;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Position;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.TeleportTarget;
@@ -59,13 +57,17 @@ public class SwitchDimension {
             Vec3d position;
             GameMode gamemode;
             if (player.getWorld().getRegistryKey().getValue().getNamespace().equals(BuildingDimension.MOD_ID)) {
-                position = PersistentPlayer.loadPosition(player, target_dim);
-                gamemode = PersistentPlayer.loadGamemode(player, target_dim);
+                BuildingDimension.log("Loading from save");
+                position = PersistentPlayer.getPosition(player);
+                gamemode = PersistentPlayer.getGamemode(player);
+
             } else {
+                BuildingDimension.log("Saving to save");
                 position = player.getPos();
                 gamemode = GameMode.CREATIVE;
             }
 
+            player.changeGameMode(gamemode);
             TeleportTarget target = new TeleportTarget(
                     position,
                     new Vec3d(0, 0, 0),
@@ -73,7 +75,9 @@ public class SwitchDimension {
                     player.getPitch()
             );
 
-            player.changeGameMode(gamemode);
+            BuildingDimension.log("Teleporting player to : " + target_dim.getValue());
+            BuildingDimension.log("Teleporting player to : " + target);
+            BuildingDimension.log("Switching player gamemode to : " + gamemode.toString());
 
             FabricDimensions.teleport(
                     player,

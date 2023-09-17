@@ -5,11 +5,11 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
 import org.jetbrains.annotations.NotNull;
@@ -27,12 +27,11 @@ public class SyncDimension {
     public static void init() {
         ServerTickEvents.END_SERVER_TICK.register((world) -> {
             if (needsSync) {
-                Chunk chunk = chunksToSync.poll();
+                Pair<WorldChunk, World> pair = chunksToSync.remove();
+                WorldChunk chunk = pair.getLeft();
 
                 if (chunk != null) {
-                    if (chunk instanceof WorldChunk) {
-                        syncChunk((WorldChunk) chunk);
-                    }
+                    syncChunk(chunk, pair.getRight());
                 }
 
                 if (chunksToSync.isEmpty()) {
@@ -53,11 +52,11 @@ public class SyncDimension {
         });
     }
 
-    private static void syncChunk(@NotNull WorldChunk chunk) {
+    private static void syncChunk(@NotNull WorldChunk chunk, @NotNull World world) {
         int ChunkX = chunk.getPos().x;
         int ChunkZ = chunk.getPos().z;
 
-        /*World creative_world = server.getWorld(CREATIVE_OVERWORLD_KEY);
+        World creative_world = server.getWorld(world.getRegistryKey());
 
         if (creative_world == null) {
             BuildingDimension.log("Unable to sync chunk " + ChunkX + ", " + ChunkZ + " because creative world is null");
@@ -88,7 +87,7 @@ public class SyncDimension {
 
         PosToProcess.put(creative_chunk.getPos(), posToProcess);
         ChunksToProcess.add(creative_chunk);
-        needsProcessing = true;*/
+        needsProcessing = true;
     }
 
     private static void postProcess(@NotNull WorldChunk chunk) {
