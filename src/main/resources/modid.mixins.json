@@ -5,9 +5,8 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "EndPortalBlockMixin",
-    "NetherPortalBlockMixin"
-  ],
-  "client": [
+    "NetherPortalBlockMixin",
+    "WorldEventS2CPacketMixin"
   ],
   "injectors": {
     "defaultRequire": 1

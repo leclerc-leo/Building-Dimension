@@ -15,10 +15,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.PersistentState;
-import net.minecraft.world.PersistentStateManager;
-import net.minecraft.world.TeleportTarget;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -39,6 +36,7 @@ public class SavedData extends PersistentState {
 
     private final Map<UUID, HashMap<Identifier, Set<String>>> advancements = new HashMap<>();
     private Map<Identifier, Advancement> advancementsList = null;
+    private final Map<UUID, GameMode> gameModes = new HashMap<>();
 
     @Override
     public NbtCompound writeNbt(@NotNull NbtCompound nbt) {
@@ -478,5 +476,21 @@ public class SavedData extends PersistentState {
                 }
             }
         }
+    }
+
+    public void saveGameMode(@NotNull ServerPlayerEntity player){
+        BuildingDimension.log("Loading game mode for " + player.getName().getString());
+
+        gameModes.put(player.getUuid(), player.interactionManager.getGameMode());
+    }
+
+    public GameMode loadGameMode(@NotNull ServerPlayerEntity player){
+        BuildingDimension.log("Loading game mode for " + player.getName().getString());
+
+        if (!gameModes.containsKey(player.getUuid())) {
+            gameModes.put(player.getUuid(), GameMode.SURVIVAL);
+        }
+
+        return gameModes.get(player.getUuid());
     }
 }

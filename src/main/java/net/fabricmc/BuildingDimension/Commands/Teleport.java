@@ -7,12 +7,18 @@ import net.minecraft.command.EntitySelector;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+
 public class Teleport {
 
     public static int teleport(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
 
         ServerPlayerEntity player = source.getPlayer();
+
+        if ( player == null ) {
+            source.sendError(Text.literal("You must be a player to use this command"));
+            return 0;
+        }
 
         if ( !player.getWorld().getRegistryKey().equals(BuildingDimension.OVERWORLD_WORLD_KEY) ) {
             player.sendMessage(Text.literal("You must be in the creative world to use this command"));

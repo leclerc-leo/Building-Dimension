@@ -54,6 +54,7 @@ public class BuildingDimension implements ModInitializer {
 				OVERWORLD
 		);
 	}
+
 	private void registerCommands(@NotNull CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
 		dispatcher
 				.register(literal("creative")

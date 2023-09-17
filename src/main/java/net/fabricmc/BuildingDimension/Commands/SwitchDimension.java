@@ -2,6 +2,7 @@ package net.fabricmc.BuildingDimension.Commands;
 
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.BuildingDimension.BuildingDimension;
+import net.fabricmc.BuildingDimension.Configs;
 import net.fabricmc.BuildingDimension.World.SavedData;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.minecraft.inventory.EnderChestInventory;
@@ -18,10 +19,17 @@ import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class SwitchDimension {
 
     private static final RegistryKey<World> OVERWORLD_WORLD_KEY = BuildingDimension.OVERWORLD_WORLD_KEY;
     private static SavedData WORLD_DATA = BuildingDimension.WORLD_DATA;
+
+    private static final Map<UUID, Long> last_switch = new HashMap<>();
 
     public static int switch_dim(@NotNull CommandContext<ServerCommandSource> context) {
         Identifier current_dim = context.getSource().getWorld().getRegistryKey().getValue();
@@ -36,6 +44,18 @@ public class SwitchDimension {
             return -1;
         }
 
+        if (last_switch.containsKey(player.getUuid())) {
+            long last_switch_time = last_switch.get(player.getUuid());
+            long current_time = new Date().getTime();
+
+            if (current_time - last_switch_time < 5000) {
+                context.getSource().sendMessage(Text.literal("You must wait 5 second between dimension switches"));
+                return -1;
+            }
+        } else {
+            last_switch.put(player.getUuid(), new Date().getTime());
+        }
+
         if (WORLD_DATA == null) {
             MinecraftServer server = context.getSource().getServer();
 
@@ -47,8 +67,18 @@ public class SwitchDimension {
 
             BuildingDimension.log("Player : " + player.getName().getString() + " is switching to creative dimension");
 
+            if (Configs.ONLY_OP && !player.hasPermissionLevel(4) && !Configs.NON_OPS_SPECTATOR) {
+                context.getSource().sendMessage(Text.literal("You must be an operator to use this command"));
+                return -1;
+            }
+
             world = context.getSource().getServer().getWorld(OVERWORLD_WORLD_KEY);
-            gameMode = GameMode.CREATIVE;
+            gameMode =
+                    context.getSource().getPlayer().hasPermissionLevel(4) ?
+                            GameMode.CREATIVE :
+                            Configs.ONLY_OP && Configs.NON_OPS_SPECTATOR ?
+                                    GameMode.SPECTATOR :
+                                    GameMode.CREATIVE;
 
             WORLD_DATA.savePosition(player);
             WORLD_DATA.saveInventory(context.getSource().getWorld(), player);
@@ -56,6 +86,7 @@ public class SwitchDimension {
             WORLD_DATA.saveExperience(player);
             WORLD_DATA.saveEffects(player);
             WORLD_DATA.saveAdvancements(player);
+            WORLD_DATA.saveGameMode(player);
             target = new TeleportTarget(
                     player.getPos(),
                     player.getVelocity(),
@@ -70,7 +101,7 @@ public class SwitchDimension {
             BuildingDimension.log("Player : " + player.getName().getString() + " is switching to survival dimension");
 
             world = context.getSource().getServer().getWorld(World.OVERWORLD);
-            gameMode = GameMode.SURVIVAL;
+            gameMode = WORLD_DATA.loadGameMode(player);
 
             WORLD_DATA.saveInventory(context.getSource().getWorld(), player);
 
