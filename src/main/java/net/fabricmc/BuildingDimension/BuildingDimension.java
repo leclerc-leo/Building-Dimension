@@ -5,18 +5,15 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.BuildingDimension.Commands.SwitchDimension;
 import net.fabricmc.BuildingDimension.Commands.SyncDimension;
 import net.fabricmc.BuildingDimension.Commands.Teleport;
-import net.fabricmc.BuildingDimension.World.SavedData;
+import net.fabricmc.BuildingDimension.Events.PersistenceCreator;
+import net.fabricmc.BuildingDimension.Events.dimensionLoading;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionOptions;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,31 +25,12 @@ public class BuildingDimension implements ModInitializer {
 	public static final String MOD_ID = "building_dimension";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	public static final Identifier OVERWORLD = new Identifier(MOD_ID, "overworld");
-
-	public static final RegistryKey<DimensionOptions> OVERWORLD_KEY = RegistryKey.of(
-			RegistryKeys.DIMENSION,
-			OVERWORLD
-	);
-
-	public static RegistryKey<World> OVERWORLD_WORLD_KEY = RegistryKey.of(
-			RegistryKeys.WORLD,
-			OVERWORLD_KEY.getValue()
-	);
-
-	public static SavedData WORLD_DATA;
-
 	@Override
 	public void onInitialize() {
 		Configs.load();
 
 		CommandRegistrationCallback.EVENT.register(this::registerCommands);
 		registerEvents();
-
-		OVERWORLD_WORLD_KEY = RegistryKey.of(
-				RegistryKeys.WORLD,
-				OVERWORLD
-		);
 	}
 
 	private void registerCommands(@NotNull CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
@@ -75,11 +53,24 @@ public class BuildingDimension implements ModInitializer {
 				);
 	}
 
+	public static void logError(String s, Exception e, ServerCommandSource source) {
+		LOGGER.error(s + e.getMessage());
+
+		StackTraceElement[] stackTrace = e.getStackTrace();
+		for (StackTraceElement element : stackTrace) {
+			LOGGER.error(element.toString());
+		}
+
+		source.sendError(Text.of(s + e.getMessage()));
+	}
+
 	public static void log(String message) {
 		LOGGER.info(message);
 	}
 
 	private void registerEvents() {
+		PersistenceCreator.init();
+		dimensionLoading.init();
 		net.fabricmc.BuildingDimension.Events.SyncDimension.init();
 	}
 }

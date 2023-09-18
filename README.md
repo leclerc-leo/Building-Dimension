@@ -3,31 +3,44 @@
 ## Setup
 
 This mod requires [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api) to be installed.  
-It was tested with Minecraft 1.19.2 and Fabric Loader 0.14.13.
+It was tested with Minecraft 1.20.1 and Fabric Loader 0.14.22.  
 
 ## Description
 
-This is adds a new dimension named the Creative World.  
-It is a dimension where you can build freely without any restrictions.  
-You can then create schematics of your builds to build them alter in the overworld.
+This mod allows you to switch between any dimension to its respective creative world.  
+These dimensions can be used to prepare builds, farms, etc. without affecting the main world.  
 
 ## Commands
 
-`/creative` allows you to switch between dimension  
-`/creative teleport ‹player›` allows you to teleport to a player in the Creative World  
-`/creative sync ‹radius›` allows you to synchronise chunks from the overworld to the Creative World
+`/creative` allows you to switch between the dimension and its respective creative world  
+`/creative teleport ‹player›` allows you to teleport to a player in the same creative world as you  
+`/creative sync ‹radius›` allows you to synchronise chunks from the dimension to its respective creative world  
 
 ## Restrictions 
 
 To prevent the Creative World from being used to cheat, the following restrictions are in place.  
 Inventories are switched to its respective world inventory.  
-The following are only saved for the overworld:
-- Experience
-- Ender Chest Inventory
-- Position when entering the Creative World
-- Effects
-- Advancements (they will be rolled back when leaving the Creative World)
+The following are only saved for the overworld:  
+- Experience  
+- Ender Chest Inventory  
+- Position when entering the creative world  
+- Effects  
+
+Portals such as for the Nether or the End are disabled.  
+But other types of portals from other mods are not.  
+
+## Configuration
+
+A configuration file is generated in the `config` folder of your Server or Client.  
+You can find inside it the options described with their default values.  
+If after an update you don't see the new options, you can store the file under another name, and it will be regenerated with the new options.  
+
+## Issues and Bugs
+
+- [ ] Trees and plants seems to not be growing at the exact same place in both worlds  
 
 ## Future
 
-- [ ] Optimise the chunk synchronisation
+- [ ] Save Achievements  
+- [ ] Optimise the chunk synchronisation  
+- [ ] Add more configuration options  

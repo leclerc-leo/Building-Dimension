@@ -12,6 +12,6 @@ only_ops = false
 non_ops_spectators = true
 
 # Whether only OPs can sync chunks (true : only OPs can sync, false : everyone can sync)
-# default : true
-op_sync = true
+# default : false
+op_sync = false
 

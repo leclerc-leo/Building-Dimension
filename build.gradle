@@ -34,12 +34,17 @@ sourceSets {
 	}
 }
 
+repositories {
+	maven { url = 'https://maven.nucleoid.xyz/' }
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	include(implementation("com.moandjiezana.toml:toml4j:${project.toml4j_version}"))
+	include(modImplementation("xyz.nucleoid:fantasy:${project.fantasy_version}"))
 }
 
 processResources {
