@@ -2,9 +2,11 @@ package net.fabricmc.BuildingDimension.Commands;
 
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.BuildingDimension.BuildingDimension;
+import net.fabricmc.BuildingDimension.Persistance.PersistentDimensions;
 import net.fabricmc.BuildingDimension.Persistance.PersistentPlayer;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -76,7 +78,7 @@ public class SwitchDimension {
             );
 
             BuildingDimension.log("Teleporting player to : " + target_dim.getValue());
-            BuildingDimension.log("Teleporting player to : " + target);
+            BuildingDimension.log("Teleporting player to : " + target.position.toString());
             BuildingDimension.log("Switching player gamemode to : " + gamemode.toString());
 
             FabricDimensions.teleport(
@@ -89,13 +91,7 @@ public class SwitchDimension {
 
             return 1;
         } catch (Exception e) {
-            BuildingDimension.log("Error switching dimension : " + e.getMessage());
-
-            StackTraceElement[] stackTrace = e.getStackTrace();
-            for (StackTraceElement element : stackTrace) {
-                BuildingDimension.log(element.toString());
-            }
-
+            BuildingDimension.logError("Failed to switch dimension: ", e, context.getSource());
             return -1;
         }
     }
@@ -107,34 +103,58 @@ public class SwitchDimension {
 
             BuildingDimension.log("Creating new dimension : " + world.getRegistryKey().getValue().getPath());
 
-            RuntimeWorldConfig worldConfig = new RuntimeWorldConfig();
-            worldConfig.setGenerator(world.getChunkManager().getChunkGenerator());
-            worldConfig.setSeed(world.getSeed());
+            RuntimeWorldHandle worldHandle = createDimension(
+                    source.getServer(),
+                    world.getRegistryKey(),
+                    fantasy
+            );
 
-            try {
-                RuntimeWorldHandle worldHandle = fantasy.getOrOpenPersistentWorld(
-                        new Identifier(
-                                BuildingDimension.MOD_ID,
-                                world.getRegistryKey().getValue().getPath()
-                        ),
-                        worldConfig
-                );
-
-                DIMENSIONS.put(
-                        world.getRegistryKey(),
-                        worldHandle.getRegistryKey()
-                );
-                DIMENSIONS.put(
-                        worldHandle.getRegistryKey(),
-                        world.getRegistryKey()
-                );
-
-            } catch (Exception e) {
-                BuildingDimension.log("Error creating new dimension : " + e.getMessage());
+            if (worldHandle == null) {
                 return true;
             }
+
+            DIMENSIONS.put(
+                    world.getRegistryKey(),
+                    worldHandle.getRegistryKey()
+            );
+            DIMENSIONS.put(
+                    worldHandle.getRegistryKey(),
+                    world.getRegistryKey()
+            );
+
+            PersistentDimensions.save(DIMENSIONS);
         }
         return false;
+    }
+
+    public static RuntimeWorldHandle createDimension (MinecraftServer server, RegistryKey<World> dimension, Fantasy fantasy) {
+        if (dimension.getValue().getNamespace().equals(BuildingDimension.MOD_ID)) {
+            return null;
+        }
+
+        ServerWorld world = server.getWorld(dimension);
+
+        if (world == null) {
+            BuildingDimension.LOGGER.error("Could not find world for dimension " + dimension.getValue());
+            return null;
+        }
+
+        RuntimeWorldConfig worldConfig = new RuntimeWorldConfig();
+        worldConfig.setGenerator(world.getChunkManager().getChunkGenerator());
+        worldConfig.setSeed(world.getSeed());
+        worldConfig.setDimensionType(world.getDimensionEntry());
+
+        RuntimeWorldHandle worldHandle = fantasy.getOrOpenPersistentWorld(
+                new Identifier(
+                        BuildingDimension.MOD_ID,
+                        world.getRegistryKey().getValue().getPath()
+                ),
+                worldConfig
+        );
+
+        BuildingDimension.log("Loaded dimension : " + dimension.getValue());
+
+        return worldHandle;
     }
 
     private static boolean isOnCooldown(@NotNull ServerPlayerEntity player) {

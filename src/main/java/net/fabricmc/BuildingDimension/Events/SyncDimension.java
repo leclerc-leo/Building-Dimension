@@ -1,6 +1,5 @@
 package net.fabricmc.BuildingDimension.Events;
 
-import net.fabricmc.BuildingDimension.BuildingDimension;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
@@ -52,16 +51,9 @@ public class SyncDimension {
         });
     }
 
-    private static void syncChunk(@NotNull WorldChunk chunk, @NotNull World world) {
+    private static void syncChunk(@NotNull WorldChunk chunk, @NotNull World creative_world) {
         int ChunkX = chunk.getPos().x;
         int ChunkZ = chunk.getPos().z;
-
-        World creative_world = server.getWorld(world.getRegistryKey());
-
-        if (creative_world == null) {
-            BuildingDimension.log("Unable to sync chunk " + ChunkX + ", " + ChunkZ + " because creative world is null");
-            return;
-        }
 
         WorldChunk creative_chunk = creative_world.getChunk(ChunkX, ChunkZ);
         Set<Vec3i> posToProcess = new HashSet<>();

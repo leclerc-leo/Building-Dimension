@@ -19,7 +19,7 @@ public class Configs {
     public static int MAX_RADIUS = 8;
     public static boolean ONLY_OP = false;
     public static boolean NON_OPS_SPECTATOR = true;
-    public static boolean OP_SYNC = true;
+    public static boolean OP_SYNC = false;
 
     public static void load() {
         if (!CONFIG_FILE.exists()) {
@@ -29,22 +29,18 @@ public class Configs {
 
         Toml toml = new Toml().read(CONFIG_FILE);
 
-        check_config(toml, "max_radius", (config_value) -> {
-            MAX_RADIUS = Integer.max(1, Integer.min(32, toml.getLong(config_value).intValue()));
-            return true;
-        });
-        check_config(toml, "only_ops", (config_value) -> {
-            ONLY_OP = toml.getBoolean(config_value);
-            return true;
-        });
-        check_config(toml, "non_ops_spectators", (config_value) -> {
-            NON_OPS_SPECTATOR = toml.getBoolean(config_value);
-            return true;
-        });
-        check_config(toml, "op_sync", (config_value) -> {
-            OP_SYNC = toml.getBoolean(config_value);
-            return true;
-        });
+        check_config(toml, "max_radius", (config_value) ->
+            MAX_RADIUS = Integer.max(1, Integer.min(32, toml.getLong(config_value).intValue()))
+        );
+        check_config(toml, "only_ops", (config_value) ->
+            ONLY_OP = toml.getBoolean(config_value)
+        );
+        check_config(toml, "non_ops_spectators", (config_value) ->
+            NON_OPS_SPECTATOR = toml.getBoolean(config_value)
+        );
+        check_config(toml, "op_sync", (config_value) ->
+            OP_SYNC = toml.getBoolean(config_value)
+        );
     }
 
     private static void generate() {
@@ -59,7 +55,7 @@ public class Configs {
         }
     }
 
-    private static void check_config (@NotNull Toml toml, String config_value, Function<String, Boolean> apply) {
+    private static void check_config (@NotNull Toml toml, String config_value, Function<String, Object> apply) {
         if (toml.contains(config_value)) {
             try {
                 apply.apply(config_value);

@@ -25,7 +25,6 @@ public class PersistentDimensions {
         if (nbt == null) return new HashMap<>();
 
         Map<RegistryKey<World>, RegistryKey<World>> dimensions = new HashMap<>();
-
         for (String key : nbt.getKeys()) {
             RegistryKey<World> dimension = nbtToWorldKey(nbt.get(key));
             if (dimension != null) {

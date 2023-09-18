@@ -11,7 +11,7 @@ import java.util.*;
 
 public class PersistenceManager extends PersistentState {
 
-    private static NbtCompound saved_data = new NbtCompound();
+    public static NbtCompound saved_data = new NbtCompound();
 
     @Override
     public NbtCompound writeNbt(@NotNull NbtCompound nbt) {
@@ -19,12 +19,11 @@ public class PersistenceManager extends PersistentState {
     }
 
     public static @NotNull PersistenceManager createFromNbt(@NotNull NbtCompound nbt) {
-        saved_data = new NbtCompound();
-        saved_data.copyFrom(nbt);
+        saved_data = nbt.copyFrom(nbt);
         return new PersistenceManager();
     }
 
-    public static @NotNull PersistenceManager getSavedData(@NotNull MinecraftServer server) {
+    public static void getSavedData(@NotNull MinecraftServer server) {
         PersistentStateManager persistentStateManager = Objects.requireNonNull(server.
                 getWorld(World.OVERWORLD)).getPersistentStateManager();
 
@@ -34,8 +33,6 @@ public class PersistenceManager extends PersistentState {
             BuildingDimension.MOD_ID);
 
         data.markDirty();
-
-        return data;
     }
 
     public static void save(@NotNull String id, @NotNull NbtElement nbt) {
