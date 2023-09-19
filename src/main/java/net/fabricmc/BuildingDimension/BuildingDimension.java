@@ -15,6 +15,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +54,7 @@ public class BuildingDimension implements ModInitializer {
 				);
 	}
 
-	public static void logError(String s, Exception e, ServerCommandSource source) {
+	public static void logError(@NotNull String s, @NotNull Exception e, @Nullable ServerCommandSource source) {
 		LOGGER.error(s + e.getMessage());
 
 		StackTraceElement[] stackTrace = e.getStackTrace();
@@ -61,7 +62,7 @@ public class BuildingDimension implements ModInitializer {
 			LOGGER.error(element.toString());
 		}
 
-		source.sendError(Text.of(s + e.getMessage()));
+		if (source != null) source.sendError(Text.of(s + e.getMessage()));
 	}
 
 	public static void log(String message) {

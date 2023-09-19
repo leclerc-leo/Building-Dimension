@@ -30,8 +30,6 @@ public class dimensionLoading {
                 }
 
                 SwitchDimension.createDimension(server, dimension, fantasy);
-
-                BuildingDimension.log("Loaded creative dimension equivalent of : " + dimension.getValue());
             }
         });
     }
