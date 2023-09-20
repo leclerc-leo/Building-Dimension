@@ -91,8 +91,7 @@ public class SyncDimension {
 
         World world = chunk.getWorld();
 
-        LightingProvider lightingProvider = world.getChunkManager().getLightingProvider();
-
+        LightingProvider lightingProvider = world.getLightingProvider();
         for (Vec3i pos : PosToProcess.get(chunk.getPos())) {
             lightingProvider.checkBlock(new BlockPos(pos.getX(), pos.getY(), pos.getZ()));
         }
