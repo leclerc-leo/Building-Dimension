@@ -4,6 +4,7 @@
 
 This mod requires [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api) to be installed.  
 It was tested with Minecraft 1.20.1 and Fabric Loader 0.14.22.  
+This mod is required only on the server side.  
 
 ## Description
 
@@ -24,10 +25,12 @@ The following are only saved for the overworld:
 - Experience  
 - Ender Chest Inventory  
 - Position when entering the creative world  
-- Effects  
+- Effects
+- Achievements
+- [Trinkets](https://www.curseforge.com/minecraft/mc-mods/trinkets) (if the mod is present) 
 
 Portals such as for the Nether or the End are disabled.  
-But other types of portals from other mods are not.  
+But other types of portals from other mods are not.
 
 ## Configuration
 
@@ -38,9 +41,13 @@ If after an update you don't see the new options, you can store the file under a
 ## Issues and Bugs
 
 - [ ] Trees and plants seems to not be growing at the exact same place in both worlds  
+- [ ] Players don't receive light update when synchronising chunks (No issues server side)
 
 ## Future
 
-- [ ] Save Achievements  
-- [ ] Optimise the chunk synchronisation  
 - [ ] Add more configuration options  
+- [ ] Support more mods that add slots to the player inventory
+- [ ] Try to block any portal from any mod
+- [ ] Further improvements to chunk synchronisation
+- [ ] Update to Minecraft 1.20.2 and maybe try to add for earlier versions
+- [ ] Better README.md and mod picture

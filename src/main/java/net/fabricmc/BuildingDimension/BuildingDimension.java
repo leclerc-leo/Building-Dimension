@@ -5,10 +5,11 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.BuildingDimension.Commands.SwitchDimension;
 import net.fabricmc.BuildingDimension.Commands.SyncDimension;
 import net.fabricmc.BuildingDimension.Commands.Teleport;
-import net.fabricmc.BuildingDimension.Events.PersistenceCreator;
 import net.fabricmc.BuildingDimension.Events.dimensionLoading;
+import net.fabricmc.BuildingDimension.Persistance.PersistenceManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.CommandManager;
@@ -70,7 +71,7 @@ public class BuildingDimension implements ModInitializer {
 	}
 
 	private void registerEvents() {
-		PersistenceCreator.init();
+		ServerLifecycleEvents.SERVER_STARTED.register(PersistenceManager::getSavedData);
 		dimensionLoading.init();
 		net.fabricmc.BuildingDimension.Events.SyncDimension.init();
 	}

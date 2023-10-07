@@ -1,6 +1,9 @@
 package net.fabricmc.BuildingDimension.Persistance;
 
+import dev.emi.trinkets.api.SlotReference;
+import dev.emi.trinkets.api.TrinketsApi;
 import net.fabricmc.BuildingDimension.BuildingDimension;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.advancement.Advancement;
 import net.minecraft.advancement.AdvancementCriterion;
 import net.minecraft.entity.effect.StatusEffect;
@@ -22,6 +25,10 @@ import java.util.Objects;
 
 public class PersistentPlayer {
 
+    private static boolean isModLoaded(String modid) {
+        return FabricLoader.getInstance().isModLoaded(modid);
+    }
+
     public static void save(ServerPlayerEntity player, RegistryKey<World> dimension) {
         savePlayerInventory(player, dimension);
 
@@ -32,6 +39,7 @@ public class PersistentPlayer {
             saveExperience(player);
             saveEffect(player);
             saveAchievements(player);
+            if (isModLoaded("trinkets")) saveTrinkets(player);
         }
     }
 
@@ -56,6 +64,15 @@ public class PersistentPlayer {
                 player.getAdvancementTracker().revokeCriterion(advancement, criterion);
             }
         }
+
+        if (isModLoaded("trinkets")) {
+            if (TrinketsApi.getTrinketComponent(player).isPresent()) {
+                TrinketsApi.getTrinketComponent(player).get().getAllEquipped().forEach(pair -> {
+                    SlotReference slot = pair.getLeft();
+                    slot.inventory().clear();
+                });
+            }
+        }
     }
 
     public static void load(ServerPlayerEntity player, RegistryKey<World> dimension) {
@@ -66,6 +83,7 @@ public class PersistentPlayer {
             loadExperience(player);
             loadEffects(player);
             loadAchievements(player);
+            if (isModLoaded("trinkets")) loadTrinkets(player);
         }
     }
 
@@ -277,5 +295,30 @@ public class PersistentPlayer {
         }
 
         announce.set(should_announce, server);
+    }
+
+    private static void saveTrinkets(@NotNull ServerPlayerEntity player){
+        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+        if (player_nbt == null) player_nbt = new NbtCompound();
+
+        NbtCompound trinkets = new NbtCompound();
+        if (TrinketsApi.getTrinketComponent(player).isPresent()) {
+            TrinketsApi.getTrinketComponent(player).get().writeToNbt(trinkets);
+        }
+
+        player_nbt.put("trinkets", trinkets);
+        PersistenceManager.save(player.getUuidAsString(), player_nbt);
+    }
+
+    private static void loadTrinkets(@NotNull ServerPlayerEntity player){
+        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+        if (player_nbt == null) return;
+
+        NbtCompound trinkets = player_nbt.getCompound("trinkets");
+        if (trinkets == null) return;
+
+        if (TrinketsApi.getTrinketComponent(player).isPresent()) {
+            TrinketsApi.getTrinketComponent(player).get().readFromNbt(trinkets);
+        }
     }
 }
