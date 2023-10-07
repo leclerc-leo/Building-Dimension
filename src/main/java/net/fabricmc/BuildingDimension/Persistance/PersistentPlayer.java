@@ -1,20 +1,33 @@
 package net.fabricmc.BuildingDimension.Persistance;
 
+import dev.emi.trinkets.api.SlotReference;
+import dev.emi.trinkets.api.TrinketsApi;
 import net.fabricmc.BuildingDimension.BuildingDimension;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.advancement.Advancement;
+import net.minecraft.advancement.AdvancementCriterion;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
 import java.util.Objects;
 
 public class PersistentPlayer {
+
+    private static boolean isModLoaded(String modid) {
+        return FabricLoader.getInstance().isModLoaded(modid);
+    }
 
     public static void save(ServerPlayerEntity player, RegistryKey<World> dimension) {
         savePlayerInventory(player, dimension);
@@ -25,6 +38,8 @@ public class PersistentPlayer {
             saveEnderChest(player, dimension);
             saveExperience(player);
             saveEffect(player);
+            saveAchievements(player);
+            if (isModLoaded("trinkets")) saveTrinkets(player);
         }
     }
 
@@ -35,6 +50,29 @@ public class PersistentPlayer {
         player.experienceProgress = 0.0f;
         player.getStatusEffects().clear();
         player.changeGameMode(GameMode.SURVIVAL);
+
+        MinecraftServer server = player.getServer();
+
+        if (server == null) {
+            BuildingDimension.logError("Failed to completely clean the player : getting the server failed", new Exception(), player.getCommandSource());
+            return;
+        }
+
+        for (Advancement advancement : server.getAdvancementLoader().getAdvancements()) {
+            Map<String, AdvancementCriterion> criteria = advancement.getCriteria();
+            for (String criterion : criteria.keySet()) {
+                player.getAdvancementTracker().revokeCriterion(advancement, criterion);
+            }
+        }
+
+        if (isModLoaded("trinkets")) {
+            if (TrinketsApi.getTrinketComponent(player).isPresent()) {
+                TrinketsApi.getTrinketComponent(player).get().getAllEquipped().forEach(pair -> {
+                    SlotReference slot = pair.getLeft();
+                    slot.inventory().clear();
+                });
+            }
+        }
     }
 
     public static void load(ServerPlayerEntity player, RegistryKey<World> dimension) {
@@ -44,6 +82,8 @@ public class PersistentPlayer {
         if (!dimension.getValue().getNamespace().equals(BuildingDimension.MOD_ID)) {
             loadExperience(player);
             loadEffects(player);
+            loadAchievements(player);
+            if (isModLoaded("trinkets")) loadTrinkets(player);
         }
     }
 
@@ -185,7 +225,7 @@ public class PersistentPlayer {
         );
     }
 
-    private static void saveGamemode(ServerPlayerEntity player) {
+    private static void saveGamemode(@NotNull ServerPlayerEntity player) {
         NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
         if (player_nbt == null) player_nbt = new NbtCompound();
 
@@ -193,10 +233,92 @@ public class PersistentPlayer {
         PersistenceManager.save(player.getUuidAsString(), player_nbt);
     }
 
-    public static GameMode getGamemode(ServerPlayerEntity player) {
+    public static GameMode getGamemode(@NotNull ServerPlayerEntity player) {
         NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
         if (player_nbt == null) return GameMode.CREATIVE;
 
         return GameMode.byId(player_nbt.getInt("gamemode"));
+    }
+
+    private static void saveAchievements(@NotNull ServerPlayerEntity player) {
+        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+        if (player_nbt == null) player_nbt = new NbtCompound();
+
+        MinecraftServer server = player.getServer();
+
+        if (server == null) {
+            BuildingDimension.logError("Failed to save achievements: server is null", new Exception(), player.getCommandSource());
+            return;
+        }
+
+        NbtList achievements = new NbtList();
+        for (Advancement advancement : server.getAdvancementLoader().getAdvancements()) {
+            Iterable<String> iterable = player.getAdvancementTracker().getProgress(advancement).getObtainedCriteria();
+
+            for (String s : iterable) {
+                NbtCompound achievement = new NbtCompound();
+                achievement.putString("advancement", advancement.getId().toString());
+                achievement.putString("criterion", s);
+                achievements.add(achievement);
+            }
+        }
+
+        player_nbt.put("achievements", achievements);
+        PersistenceManager.save(player.getUuidAsString(), player_nbt);
+    }
+
+    private static void loadAchievements(@NotNull ServerPlayerEntity player) {
+        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+        if (player_nbt == null) return;
+
+        NbtList achievements = player_nbt.getList("achievements", 10);
+        if (achievements == null) return;
+
+        MinecraftServer server = player.getServer();
+
+        if (server == null) {
+            BuildingDimension.logError("Failed to load achievements: server is null", new Exception(), player.getCommandSource());
+            return;
+        }
+
+        GameRules.BooleanRule announce = player.getWorld().getGameRules().get(GameRules.ANNOUNCE_ADVANCEMENTS);
+        boolean should_announce = announce.get();
+        announce.set(false, server);
+
+        for (int i = 0; i < achievements.size(); i++) {
+            NbtCompound achievement = achievements.getCompound(i);
+            BuildingDimension.log("Granting achievement: " + achievement.getString("advancement") + " : " + achievement.getString("criterion"));
+            player.getAdvancementTracker().grantCriterion(
+                    server.getAdvancementLoader().get(new Identifier(achievement.getString("advancement"))),
+                    achievement.getString("criterion")
+            );
+        }
+
+        announce.set(should_announce, server);
+    }
+
+    private static void saveTrinkets(@NotNull ServerPlayerEntity player){
+        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+        if (player_nbt == null) player_nbt = new NbtCompound();
+
+        NbtCompound trinkets = new NbtCompound();
+        if (TrinketsApi.getTrinketComponent(player).isPresent()) {
+            TrinketsApi.getTrinketComponent(player).get().writeToNbt(trinkets);
+        }
+
+        player_nbt.put("trinkets", trinkets);
+        PersistenceManager.save(player.getUuidAsString(), player_nbt);
+    }
+
+    private static void loadTrinkets(@NotNull ServerPlayerEntity player){
+        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+        if (player_nbt == null) return;
+
+        NbtCompound trinkets = player_nbt.getCompound("trinkets");
+        if (trinkets == null) return;
+
+        if (TrinketsApi.getTrinketComponent(player).isPresent()) {
+            TrinketsApi.getTrinketComponent(player).get().readFromNbt(trinkets);
+        }
     }
 }

@@ -5,16 +5,18 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.BuildingDimension.Commands.SwitchDimension;
 import net.fabricmc.BuildingDimension.Commands.SyncDimension;
 import net.fabricmc.BuildingDimension.Commands.Teleport;
-import net.fabricmc.BuildingDimension.Events.PersistenceCreator;
 import net.fabricmc.BuildingDimension.Events.dimensionLoading;
+import net.fabricmc.BuildingDimension.Persistance.PersistenceManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +55,7 @@ public class BuildingDimension implements ModInitializer {
 				);
 	}
 
-	public static void logError(String s, Exception e, ServerCommandSource source) {
+	public static void logError(@NotNull String s, @NotNull Exception e, @Nullable ServerCommandSource source) {
 		LOGGER.error(s + e.getMessage());
 
 		StackTraceElement[] stackTrace = e.getStackTrace();
@@ -61,7 +63,7 @@ public class BuildingDimension implements ModInitializer {
 			LOGGER.error(element.toString());
 		}
 
-		source.sendError(Text.of(s + e.getMessage()));
+		if (source != null) source.sendError(Text.of(s + e.getMessage()));
 	}
 
 	public static void log(String message) {
@@ -69,7 +71,7 @@ public class BuildingDimension implements ModInitializer {
 	}
 
 	private void registerEvents() {
-		PersistenceCreator.init();
+		ServerLifecycleEvents.SERVER_STARTED.register(PersistenceManager::getSavedData);
 		dimensionLoading.init();
 		net.fabricmc.BuildingDimension.Events.SyncDimension.init();
 	}
