@@ -6,6 +6,7 @@
   "mixins": [
     "EndPortalBlockMixin",
     "NetherPortalBlockMixin",
+    "ServerWorldMixin",
     "WorldEventS2CPacketMixin"
   ],
   "injectors": {
