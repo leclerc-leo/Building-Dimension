@@ -14,6 +14,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +29,8 @@ public class SwitchDimension {
     public static Map<RegistryKey<World>, RegistryKey<World>> DIMENSIONS = new HashMap<>();
 
     private static final Map<UUID, Long> last_switch = new HashMap<>();
+
+    public static final Set<UUID> allowed_switching = new HashSet<>();
 
     public static int switch_dim(@NotNull CommandContext<ServerCommandSource> context) {
         try {
@@ -81,11 +84,15 @@ public class SwitchDimension {
             BuildingDimension.log("Teleporting player to : " + target.position.toString());
             BuildingDimension.log("Switching player gamemode to : " + gamemode.toString());
 
+            allowed_switching.add(player.getUuid());
+
             FabricDimensions.teleport(
                     player,
                     source.getServer().getWorld(target_dim),
                     target
             );
+
+            allowed_switching.remove(player.getUuid());
 
             PersistentPlayer.load(player, target_dim);
 
@@ -135,14 +142,18 @@ public class SwitchDimension {
         ServerWorld world = server.getWorld(dimension);
 
         if (world == null) {
-            BuildingDimension.LOGGER.error("Could not find world for dimension " + dimension.getValue());
+            BuildingDimension.logError("Failed to load world: ", new Exception(), null);
             return null;
         }
 
-        RuntimeWorldConfig worldConfig = new RuntimeWorldConfig();
-        worldConfig.setGenerator(world.getChunkManager().getChunkGenerator());
-        worldConfig.setSeed(world.getSeed());
-        worldConfig.setDimensionType(world.getDimensionEntry());
+        RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
+                .setGenerator(world.getChunkManager().getChunkGenerator())
+                .setSeed(world.getSeed())
+                .setDimensionType(world.getDimensionEntry())
+                .setGameRule(
+                        GameRules.ANNOUNCE_ADVANCEMENTS,
+                        false
+                );
 
         RuntimeWorldHandle worldHandle = fantasy.getOrOpenPersistentWorld(
                 new Identifier(
@@ -152,7 +163,7 @@ public class SwitchDimension {
                 worldConfig
         );
 
-        BuildingDimension.log("Loaded dimension : " + dimension.getValue());
+        BuildingDimension.log("Loaded creative dimension equivalent of : " + dimension.getValue());
 
         return worldHandle;
     }

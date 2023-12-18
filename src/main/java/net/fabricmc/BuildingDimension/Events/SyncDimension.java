@@ -1,14 +1,16 @@
 package net.fabricmc.BuildingDimension.Events;
 
+import io.netty.buffer.ByteBufAllocator;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.block.BlockState;
-import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +26,7 @@ public class SyncDimension {
     private static boolean needsProcessing = false;
 
     public static void init() {
-        ServerTickEvents.END_SERVER_TICK.register((world) -> {
+        ServerTickEvents.END_SERVER_TICK.register((server) -> {
             if (needsSync) {
                 Pair<WorldChunk, World> pair = chunksToSync.remove();
                 WorldChunk chunk = pair.getLeft();
@@ -62,20 +64,24 @@ public class SyncDimension {
             posToProcess.add(new Vec3i(pos.getX(), pos.getY(), pos.getZ()))
         );
 
-        for (int y = -63; y < 320; y++) {
-            for (int z = 0; z < 16; z++) {
-                for (int x = 0; x < 16; x++) {
-                    BlockPos pos = new BlockPos(x, y, z);
-                    BlockState state = chunk.getBlockState(pos);
-                    BlockState creative_state = creative_chunk.getBlockState(pos);
+        int n_sections = (chunk.getTopY() - chunk.getBottomY()) >> 4;
 
-                    if (state != creative_state) {
-                        posToProcess.add(new Vec3i(pos.getX() + ChunkX * 16, pos.getY(), pos.getZ() + ChunkZ * 16));
-                        creative_chunk.setBlockState(pos, state, false);
-                    }
-                }
-            }
+        for (int y_section = 0; y_section < n_sections; y_section++) {
+            ChunkSection section = chunk.getSectionArray()[y_section],
+                    creative_section = creative_chunk.getSectionArray()[y_section];
+
+            PacketByteBuf buf = new PacketByteBuf(
+                    ByteBufAllocator.DEFAULT.buffer()
+            );
+
+            section.getBlockStateContainer().writePacket(buf);
+
+            creative_section.getBlockStateContainer().readPacket(buf);
         }
+
+        creative_chunk.forEachLightSource((pos, state) ->
+            posToProcess.add(new Vec3i(pos.getX(), pos.getY(), pos.getZ()))
+        );
 
         PosToProcess.put(creative_chunk.getPos(), posToProcess);
         ChunksToProcess.add(creative_chunk);
@@ -87,15 +93,11 @@ public class SyncDimension {
 
         World world = chunk.getWorld();
 
-        LightingProvider lightingProvider = world.getChunkManager().getLightingProvider();
-
-        if (PosToProcess.containsKey(chunk.getPos())) {
-            PosToProcess.get(chunk.getPos()).forEach(pos ->
-                lightingProvider.checkBlock(new BlockPos(pos.getX(), pos.getY(), pos.getZ()))
-            );
+        LightingProvider lightingProvider = world.getLightingProvider();
+        for (Vec3i pos : PosToProcess.get(chunk.getPos())) {
+            lightingProvider.checkBlock(new BlockPos(pos.getX(), pos.getY(), pos.getZ()));
         }
 
-        // sending all block updates with light and block events
         world.getPlayers().forEach(player -> {
             if (player instanceof ServerPlayerEntity) {
                 int view_distance = server.getPlayerManager().getViewDistance();
@@ -103,12 +105,13 @@ public class SyncDimension {
                 if (Math.abs(player.getPos().x - chunk.getPos().getStartX()) > 16 * view_distance) return;
                 if (Math.abs(player.getPos().z - chunk.getPos().getStartZ()) > 16 * view_distance) return;
 
-                PosToProcess.get(chunk.getPos()).forEach(pos -> {
-                    BlockPos update_pos = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
-                    ((ServerPlayerEntity) player).networkHandler.sendPacket(new BlockUpdateS2CPacket(chunk.getWorld(), update_pos));
-                });
+                ((ServerPlayerEntity) player).networkHandler.sendPacket(new ChunkDataS2CPacket(
+                        chunk,
+                        chunk.getWorld().getLightingProvider(),
+                        new BitSet(65536),
+                        new BitSet(65536)
+                ));
             }
-        }
-        );
+        });
     }
 }
