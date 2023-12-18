@@ -4,8 +4,6 @@
   "package": "net.fabricmc.BuildingDimension.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "EndPortalBlockMixin",
-    "NetherPortalBlockMixin",
     "WorldEventS2CPacketMixin"
   ],
   "injectors": {
