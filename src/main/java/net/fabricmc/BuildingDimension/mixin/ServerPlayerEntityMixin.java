@@ -14,13 +14,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ServerPlayerEntity.class)
 public class ServerPlayerEntityMixin {
 
+    /**
+     * Prevents players from leaving any building dimension.
+     * Players must be able to leave the building dimension when using the /switch command.
+     *
+     * @param destination The destination
+     * @param cir Callback info
+     */
     @Inject(
-            method = "moveToWorld(Lnet/minecraft/server/world/ServerWorld;)V",
+            method = "moveToWorld",
             at = @At("HEAD"),
             cancellable = true
     )
     private void moveToWorld(ServerWorld destination, CallbackInfoReturnable<Entity> cir){
         ServerPlayerEntity player = (ServerPlayerEntity)(Object)this;
+
         RegistryKey<World> target_dim = destination.getRegistryKey();
         RegistryKey<World> player_dim = player.getServerWorld().getRegistryKey();
 
