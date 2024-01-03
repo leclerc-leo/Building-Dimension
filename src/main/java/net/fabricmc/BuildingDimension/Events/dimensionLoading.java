@@ -4,7 +4,7 @@ import net.fabricmc.BuildingDimension.BuildingDimension;
 import net.fabricmc.BuildingDimension.Commands.SwitchDimension;
 import net.fabricmc.BuildingDimension.Persistance.PersistentDimensions;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.registry.RegistryKey;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import xyz.nucleoid.fantasy.Fantasy;
 
@@ -17,6 +17,8 @@ public class dimensionLoading {
     public static void init () {
 
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
+            BuildingDimension.log("Loading dimensions");
+
             Map<RegistryKey<World>, RegistryKey<World>> d = PersistentDimensions.load();
             SwitchDimension.DIMENSIONS = d;
 

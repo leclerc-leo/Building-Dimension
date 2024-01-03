@@ -2,8 +2,8 @@ package net.fabricmc.BuildingDimension.Persistance;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
@@ -29,7 +29,7 @@ public class PersistentDimensions {
             RegistryKey<World> dimension = nbtToWorldKey(nbt.get(key));
             if (dimension != null) {
                 RegistryKey<World> world = RegistryKey.of(
-                        RegistryKeys.WORLD,
+                        Registry.WORLD_KEY,
                         new Identifier(key)
                 );
                 dimensions.put(world, dimension);
@@ -49,7 +49,7 @@ public class PersistentDimensions {
         if (nbt == null) return null;
         NbtCompound compound = (NbtCompound) nbt;
         return RegistryKey.of(
-                RegistryKeys.WORLD,
+                Registry.WORLD_KEY,
                 new Identifier(
                         compound.getString("namespace"),
                         compound.getString("path")

@@ -56,6 +56,7 @@ dependencies {
 
 	// Mods that are optional for the mod to function
 	modImplementation "dev.emi:trinkets:${trinkets_version}"
+	modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-api:4.2.0"
 }
 
 processResources {

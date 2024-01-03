@@ -47,7 +47,6 @@ If after an update you don't see the new options, you can store the file under a
 
 - [ ] Add more configuration options  
 - [ ] Support more mods that add slots to the player inventory (idk which one exists)
-- [ ] Try to block any portal from any mod (needs testing)
 - [ ] Further improvements to chunk synchronisation
 - [ ] Update to Minecraft 1.20.2 and maybe try to add for earlier versions
 - [ ] Better README.md and mod picture

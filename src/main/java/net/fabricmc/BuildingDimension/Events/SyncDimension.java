@@ -60,7 +60,7 @@ public class SyncDimension {
         WorldChunk creative_chunk = creative_world.getChunk(ChunkX, ChunkZ);
         Set<Vec3i> posToProcess = new HashSet<>();
 
-        creative_chunk.forEachLightSource((pos, state) ->
+        creative_chunk.getLightSourcesStream().forEach(pos ->
             posToProcess.add(new Vec3i(pos.getX(), pos.getY(), pos.getZ()))
         );
 
@@ -79,7 +79,7 @@ public class SyncDimension {
             creative_section.getBlockStateContainer().readPacket(buf);
         }
 
-        creative_chunk.forEachLightSource((pos, state) ->
+        creative_chunk.getLightSourcesStream().forEach(pos ->
             posToProcess.add(new Vec3i(pos.getX(), pos.getY(), pos.getZ()))
         );
 
@@ -109,7 +109,8 @@ public class SyncDimension {
                         chunk,
                         chunk.getWorld().getLightingProvider(),
                         new BitSet(65536),
-                        new BitSet(65536)
+                        new BitSet(65536),
+                        false
                 ));
             }
         });

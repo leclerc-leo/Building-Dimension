@@ -5,12 +5,12 @@ import net.fabricmc.BuildingDimension.BuildingDimension;
 import net.fabricmc.BuildingDimension.Persistance.PersistentDimensions;
 import net.fabricmc.BuildingDimension.Persistance.PersistentPlayer;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
-import net.minecraft.registry.RegistryKey;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
@@ -38,17 +38,17 @@ public class SwitchDimension {
             ServerPlayerEntity player = source.getPlayer();
 
             if (player == null) {
-                source.sendMessage(Text.literal("You must be a player to use this command"));
+                source.sendFeedback(new LiteralText("You must be a player to use this command"), false);
                 return -1;
             }
 
             if (isOnCooldown(player)) {
-                source.sendMessage(Text.literal("You must wait 5 seconds between dimension switches"));
+                player.sendMessage(new LiteralText("You must wait 5 seconds between dimension switches"), false);
                 return -1;
             }
 
             if (setupDimensions(source)) {
-                source.sendMessage(Text.literal("Error creating new dimension"));
+                player.sendMessage(new LiteralText("Error creating new dimension"), false);
                 return -1;
             }
 
@@ -149,7 +149,7 @@ public class SwitchDimension {
         RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
                 .setGenerator(world.getChunkManager().getChunkGenerator())
                 .setSeed(world.getSeed())
-                .setDimensionType(world.getDimensionEntry())
+                .setDimensionType(world.getDimension())
                 .setGameRule(
                         GameRules.ANNOUNCE_ADVANCEMENTS,
                         false

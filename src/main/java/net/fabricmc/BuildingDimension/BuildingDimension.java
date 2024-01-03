@@ -8,9 +8,8 @@ import net.fabricmc.BuildingDimension.Commands.Teleport;
 import net.fabricmc.BuildingDimension.Events.dimensionLoading;
 import net.fabricmc.BuildingDimension.Persistance.PersistenceManager;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -35,7 +34,7 @@ public class BuildingDimension implements ModInitializer {
 		registerEvents();
 	}
 
-	private void registerCommands(@NotNull CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
+	private void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, boolean b) {
 		dispatcher
 				.register(literal("creative")
 						.executes(SwitchDimension::switch_dim)
