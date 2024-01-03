@@ -27,8 +27,8 @@ public class EntityMixin {
     private void onMoveToWorld(ServerWorld destination, CallbackInfoReturnable<Entity> cir){
         Entity entity = (Entity)(Object)this;
 
-        RegistryKey<World> source_dim = destination.getRegistryKey();
-        RegistryKey<World> target_dim = entity.getWorld().getRegistryKey();
+        RegistryKey<World> target_dim = destination.getRegistryKey();
+        RegistryKey<World> source_dim = entity.getWorld().getRegistryKey();
 
         if (! target_dim.getValue().getNamespace().equals("building_dimension") &&
                 source_dim.getValue().getNamespace().equals("building_dimension")) {
