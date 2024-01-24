@@ -4,6 +4,7 @@
   "package": "net.fabricmc.BuildingDimension.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "EntityMixin",
     "ServerPlayerEntityMixin",
     "WorldEventS2CPacketMixin"
   ],

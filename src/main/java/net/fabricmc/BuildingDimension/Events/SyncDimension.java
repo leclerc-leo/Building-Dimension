@@ -64,7 +64,7 @@ public class SyncDimension {
             posToProcess.add(new Vec3i(pos.getX(), pos.getY(), pos.getZ()))
         );
 
-        int n_sections = (chunk.getTopY() - chunk.getBottomY()) >> 4;
+        int n_sections = chunk.getSectionArray().length;
 
         for (int y_section = 0; y_section < n_sections; y_section++) {
             ChunkSection section = chunk.getSectionArray()[y_section],
