@@ -25,10 +25,27 @@ import java.util.*;
 
 public class SwitchDimension {
 
+    /**
+     * A map of a dimension to it's building counterpart and vice versa.
+     * This allows us to easily find the destination dimension when switching dimensions.
+     */
     public static Map<RegistryKey<World>, RegistryKey<World>> DIMENSIONS = new HashMap<>();
 
+    /**
+     * A map of a player to the last time they switched dimensions.
+     * This is used to prevent players from switching dimensions too quickly.
+     */
     private static final Map<UUID, Long> last_switch = new HashMap<>();
 
+    /**
+     * A set of players that are allowed to switch dimensions.
+     * This is used to prevent players from leaving the building dimension.
+     * They are added to the set when they use the /switch command and removed when they are teleported.
+     * <p>
+     * see {@link net.fabricmc.BuildingDimension.mixin.ServerPlayerEntityMixin} for the logic behind blocking players from leaving the building dimension
+     * It's particularly useful when the player is in dimensions from other mods and those mods use a different way to exit the dimension.
+     * For example, the Custom Portals mod uses a custom portal block to exit the dimension, or the Bee Dimension mod uses a bee hive.
+     */
     public static final Set<UUID> allowed_switching = new HashSet<>();
 
     public static int switch_dim(@NotNull CommandContext<ServerCommandSource> context) {
@@ -51,19 +68,20 @@ public class SwitchDimension {
                 return -1;
             }
 
+            PersistentPlayer persistent_player = new PersistentPlayer(source.getServer());
             RegistryKey<World> target_dim = DIMENSIONS.get(source.getWorld().getRegistryKey());
             BuildingDimension.log("Switching dimension to : " + target_dim.getValue());
 
-            PersistentPlayer.save(player, source.getWorld().getRegistryKey());
+            persistent_player.save(player, source.getWorld().getRegistryKey());
 
-            PersistentPlayer.cleanPlayer(player);
+            persistent_player.cleanPlayer(player);
 
             Vec3d position;
             GameMode gamemode;
             if (player.getWorld().getRegistryKey().getValue().getNamespace().equals(BuildingDimension.MOD_ID)) {
                 BuildingDimension.log("Loading from save");
-                position = PersistentPlayer.getPosition(player);
-                gamemode = PersistentPlayer.getGamemode(player);
+                position = persistent_player.getPosition(player);
+                gamemode = persistent_player.getGamemode(player);
 
             } else {
                 BuildingDimension.log("Saving to save");
@@ -93,7 +111,7 @@ public class SwitchDimension {
 
             allowed_switching.remove(player.getUuid());
 
-            PersistentPlayer.load(player, target_dim);
+            persistent_player.load(player, target_dim);
 
             return 1;
         } catch (Exception e) {
@@ -102,6 +120,13 @@ public class SwitchDimension {
         }
     }
 
+    /**
+     * Sets up the dimensions if they haven't been set up yet
+     * And adds them to the DIMENSIONS map if they haven't been added yet
+     *
+     * @param source The command source
+     * @return false if the dimensions were already set up, true otherwise
+     */
     private static boolean setupDimensions(@NotNull ServerCommandSource source) {
         if (!DIMENSIONS.containsKey(source.getWorld().getRegistryKey())) {
 
@@ -114,26 +139,33 @@ public class SwitchDimension {
                     world.getRegistryKey()
             )) return true;
 
-            RegistryKey<World> creative_dimension = RegistryKey.of(
+            RegistryKey<World> building_dimension = RegistryKey.of(
                     RegistryKeys.WORLD,
                     new Identifier(BuildingDimension.MOD_ID, world.getRegistryKey().getValue().getPath())
             );
 
             DIMENSIONS.put(
                     world.getRegistryKey(),
-                    creative_dimension
+                    building_dimension
             );
             DIMENSIONS.put(
-                    creative_dimension,
+                    building_dimension,
                     world.getRegistryKey()
             );
 
-            PersistentDimensions.save(DIMENSIONS);
+            new PersistentDimensions(source.getServer()).save(DIMENSIONS);
         }
 
         return false;
     }
 
+    /**
+     * Creates a new dimension with the same options and ChunkGenerator as the given dimension
+     *
+     * @param server The server
+     * @param dimension The dimension to create
+     * @return true if the dimension was created, false otherwise
+     */
     public static boolean createDimension (MinecraftServer server, RegistryKey<World> dimension) {
         if (dimension.getValue().getNamespace().equals(BuildingDimension.MOD_ID)) {
             return false;
@@ -155,15 +187,25 @@ public class SwitchDimension {
                     )
             );
         } catch (Exception e) {
+            // There is usually an error when trying to create a dimension that already exists when the server starts
+            // But when a player tries to create a dimension that already exists, it doesn't throw an error
+            // DimensionAPI uses a different method in its latest version for Minecraft 1.20.4 which should fix this
+
             BuildingDimension.logError("Failed to create dimension: ", e, null);
             return true;
         }
 
-        BuildingDimension.log("Loaded creative dimension equivalent of : " + dimension.getValue());
+        BuildingDimension.log("Loaded building dimension equivalent of : " + dimension.getValue());
 
         return false;
     }
 
+    /**
+     * Checks if the player is on cooldown when switching dimensions
+     *
+     * @param player The player to check
+     * @return true if the player is on cooldown, false otherwise
+     */
     private static boolean isOnCooldown(@NotNull ServerPlayerEntity player) {
         if (last_switch.containsKey(player.getUuid())) {
             long last_switch_time = last_switch.get(player.getUuid());

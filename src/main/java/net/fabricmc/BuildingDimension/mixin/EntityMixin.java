@@ -1,5 +1,6 @@
 package net.fabricmc.BuildingDimension.mixin;
 
+import net.fabricmc.BuildingDimension.BuildingDimension;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.world.ServerWorld;
@@ -30,8 +31,8 @@ public class EntityMixin {
         RegistryKey<World> target_dim = destination.getRegistryKey();
         RegistryKey<World> source_dim = entity.getWorld().getRegistryKey();
 
-        if (! target_dim.getValue().getNamespace().equals("building_dimension") &&
-                source_dim.getValue().getNamespace().equals("building_dimension")) {
+        if (! target_dim.getValue().getNamespace().equals(BuildingDimension.MOD_ID) &&
+                source_dim.getValue().getNamespace().equals(BuildingDimension.MOD_ID)) {
 
             cir.setReturnValue(entity);
         }

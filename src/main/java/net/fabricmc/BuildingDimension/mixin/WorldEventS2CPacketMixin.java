@@ -17,6 +17,15 @@ public class WorldEventS2CPacketMixin {
     @Shadow
     private int eventId;
 
+    /**
+     * Prevents the server from sending the sound a portal frame makes.
+     *
+     * @param eventId The event ID
+     * @param pos The position of the block
+     * @param data The block state
+     * @param global Whether the event is global
+     * @param ci Callback info
+     */
     @Inject(method = "<init>(ILnet/minecraft/util/math/BlockPos;IZ)V", at = @At("RETURN"))
     private void init(int eventId, BlockPos pos, int data, boolean global, CallbackInfo ci) {
         if (eventId == 1032) {

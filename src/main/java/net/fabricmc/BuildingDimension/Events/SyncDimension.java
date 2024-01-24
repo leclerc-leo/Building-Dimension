@@ -1,5 +1,6 @@
 package net.fabricmc.BuildingDimension.Events;
 
+import com.mojang.brigadier.context.CommandContext;
 import io.netty.buffer.ByteBufAllocator;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.network.PacketByteBuf;
@@ -25,6 +26,13 @@ public class SyncDimension {
     private final static Map<ChunkPos, Set<Vec3i>> PosToProcess = new HashMap<>();
     private static boolean needsProcessing = false;
 
+    /**
+     * Makes sure that the chunks are synced at a reasonable rate.
+     * This is done by syncing one chunk per tick.
+     * If there wasn't this mechanism, the server would freeze for a few seconds when syncing a large radius.
+     * <p>
+     * They are added to a queue in {@link net.fabricmc.BuildingDimension.Commands.SyncDimension#sync(CommandContext, int)}
+     */
     public static void init() {
         ServerTickEvents.END_SERVER_TICK.register((server) -> {
             if (needsSync) {
@@ -53,14 +61,20 @@ public class SyncDimension {
         });
     }
 
-    private static void syncChunk(@NotNull WorldChunk chunk, @NotNull World creative_world) {
+    /**
+     * Syncs a chunk from a world to it's building counterpart.
+     *
+     * @param chunk The chunk to sync to the building world
+     * @param building_world The building world to sync to
+     */
+    private static void syncChunk(@NotNull WorldChunk chunk, @NotNull World building_world) {
         int ChunkX = chunk.getPos().x;
         int ChunkZ = chunk.getPos().z;
 
-        WorldChunk creative_chunk = creative_world.getChunk(ChunkX, ChunkZ);
+        WorldChunk building_chunk = building_world.getChunk(ChunkX, ChunkZ);
         Set<Vec3i> posToProcess = new HashSet<>();
 
-        creative_chunk.forEachLightSource((pos, state) ->
+        building_chunk.forEachLightSource((pos, state) ->
             posToProcess.add(new Vec3i(pos.getX(), pos.getY(), pos.getZ()))
         );
 
@@ -68,7 +82,7 @@ public class SyncDimension {
 
         for (int y_section = 0; y_section < n_sections; y_section++) {
             ChunkSection section = chunk.getSectionArray()[y_section],
-                    creative_section = creative_chunk.getSectionArray()[y_section];
+                    building_section = building_chunk.getSectionArray()[y_section];
 
             PacketByteBuf buf = new PacketByteBuf(
                     ByteBufAllocator.DEFAULT.buffer()
@@ -76,18 +90,24 @@ public class SyncDimension {
 
             section.getBlockStateContainer().writePacket(buf);
 
-            creative_section.getBlockStateContainer().readPacket(buf);
+            building_section.getBlockStateContainer().readPacket(buf);
         }
 
-        creative_chunk.forEachLightSource((pos, state) ->
+        building_chunk.forEachLightSource((pos, state) ->
             posToProcess.add(new Vec3i(pos.getX(), pos.getY(), pos.getZ()))
         );
 
-        PosToProcess.put(creative_chunk.getPos(), posToProcess);
-        ChunksToProcess.add(creative_chunk);
+        PosToProcess.put(building_chunk.getPos(), posToProcess);
+        ChunksToProcess.add(building_chunk);
         needsProcessing = true;
     }
 
+    /**
+     * Runs the post processing on a chunk.
+     * This includes water and lava flow, and lighting updates.
+     *
+     * @param chunk The chunk to run the post processing on
+     */
     private static void postProcess(@NotNull WorldChunk chunk) {
         chunk.runPostProcessing();
 

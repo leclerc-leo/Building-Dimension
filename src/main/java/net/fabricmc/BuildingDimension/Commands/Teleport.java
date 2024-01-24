@@ -9,6 +9,12 @@ import net.minecraft.text.Text;
 
 public class Teleport {
 
+    /**
+     * Teleports the player to the target player
+     *
+     * @param context The command context
+     * @return 1 if successful, 0 if not
+     */
     public static int teleport(CommandContext<ServerCommandSource> context) {
         try {
             ServerCommandSource source = context.getSource();
@@ -21,7 +27,7 @@ public class Teleport {
             }
 
             if ( !player.getWorld().getRegistryKey().getValue().getNamespace().equals(BuildingDimension.MOD_ID) ) {
-                player.sendMessage(Text.literal("You must be in the creative world to use this command"));
+                player.sendMessage(Text.literal("You must be in the building world to use this command"));
                 return 0;
             }
 
@@ -32,7 +38,7 @@ public class Teleport {
                     || !target.getWorld().getRegistryKey().getValue().getNamespace().equals(BuildingDimension.MOD_ID)
                     || !target.getWorld().getRegistryKey().getValue().getNamespace().equals(player.getWorld().getRegistryKey().getValue().getNamespace())
             ) {
-                player.sendMessage(Text.literal("The target player must be in the creative world to use this command and must be in the same dimension as you"));
+                player.sendMessage(Text.literal("The target player must be in the building world to use this command and must be in the same dimension as you"));
                 return 0;
             }
 

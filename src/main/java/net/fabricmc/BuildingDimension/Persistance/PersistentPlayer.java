@@ -3,7 +3,6 @@ package net.fabricmc.BuildingDimension.Persistance;
 import dev.emi.trinkets.api.SlotReference;
 import dev.emi.trinkets.api.TrinketsApi;
 import net.fabricmc.BuildingDimension.BuildingDimension;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.advancement.Advancement;
 import net.minecraft.advancement.AdvancementCriterion;
 import net.minecraft.entity.effect.StatusEffect;
@@ -27,7 +26,25 @@ import static net.fabricmc.BuildingDimension.BuildingDimension.isModLoaded;
 
 public class PersistentPlayer {
 
-    public static void save(ServerPlayerEntity player, RegistryKey<World> dimension) {
+    private final PersistenceManager manager;
+
+    public PersistentPlayer(@NotNull MinecraftServer server) {
+        this.manager = PersistenceManager.getSavedData(server);
+    }
+
+    /**
+     * Saves the player data to the disk.
+     * <p>
+     * This is called when the player enters the building dimension.
+     * <p>
+     * It saves the player's inventory, ender chest, position, gamemode, experience, effects and achievements.
+     * <p>
+     * It also saves the player's trinkets if the Trinkets mod is loaded.
+     *
+     * @param player    The player to save
+     * @param dimension The dimension the player is in before entering the building dimension
+     */
+    public void save(ServerPlayerEntity player, RegistryKey<World> dimension) {
         savePlayerInventory(player, dimension);
 
         if (!dimension.getValue().getNamespace().equals(BuildingDimension.MOD_ID)) {
@@ -41,7 +58,18 @@ public class PersistentPlayer {
         }
     }
 
-    public static void cleanPlayer(@NotNull ServerPlayerEntity player) {
+    /**
+     * Completely cleans the player.
+     * <p>
+     * This is called when the player leaves the building dimension.
+     * <p>
+     * It clears the player's inventory, ender chest, experience, effects and achievements.
+     * <p>
+     * It also clears the player's trinkets if the Trinkets mod is loaded.
+     *
+     * @param player The player to clean
+     */
+    public void cleanPlayer(@NotNull ServerPlayerEntity player) {
         player.getInventory().clear();
         player.getEnderChestInventory().clear();
         player.setExperienceLevel(0);
@@ -73,7 +101,19 @@ public class PersistentPlayer {
         }
     }
 
-    public static void load(ServerPlayerEntity player, RegistryKey<World> dimension) {
+    /**
+     * Loads the player data from the disk.
+     * <p>
+     * This is called when the player enters the building dimension.
+     * <p>
+     * It loads the player's inventory, ender chest, position, gamemode, experience, effects and achievements.
+     * <p>
+     * It also loads the player's trinkets if the Trinkets mod is loaded.
+     *
+     * @param player The player to load
+     * @param dimension The dimension the player is in before entering the building dimension
+     */
+    public void load(ServerPlayerEntity player, RegistryKey<World> dimension) {
         loadPlayerInventory(player, dimension);
         loadEnderChest(player, dimension);
 
@@ -85,7 +125,7 @@ public class PersistentPlayer {
         }
     }
 
-    private static void savePlayerInventory(@NotNull ServerPlayerEntity player, RegistryKey<World> dimension) {
+    private void savePlayerInventory(@NotNull ServerPlayerEntity player, RegistryKey<World> dimension) {
         saveInventory(
                 player.getUuidAsString(),
                 player.getInventory().writeNbt(new NbtList()),
@@ -94,7 +134,7 @@ public class PersistentPlayer {
         );
     }
 
-    private static void saveEnderChest(@NotNull ServerPlayerEntity player, RegistryKey<World> dimension) {
+    private void saveEnderChest(@NotNull ServerPlayerEntity player, RegistryKey<World> dimension) {
         saveInventory(
                 player.getUuidAsString(),
                 player.getEnderChestInventory().toNbtList(),
@@ -103,18 +143,18 @@ public class PersistentPlayer {
         );
     }
 
-    private static void loadPlayerInventory(ServerPlayerEntity player, RegistryKey<World> dimension) {
+    private void loadPlayerInventory(ServerPlayerEntity player, RegistryKey<World> dimension) {
         NbtList inv = loadInventory(player, dimension, "player_inventory");
         player.getInventory().readNbt(inv);
     }
 
-    private static void loadEnderChest(ServerPlayerEntity player, RegistryKey<World> dimension) {
+    private void loadEnderChest(ServerPlayerEntity player, RegistryKey<World> dimension) {
         NbtList inv = loadInventory(player, dimension, "ender_chest");
         player.getEnderChestInventory().readNbtList(inv);
     }
 
-    private static void saveInventory(String uuid, NbtList inventory, RegistryKey<World> dimension, String inventory_name) {
-        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(uuid);
+    private void saveInventory(String uuid, NbtList inventory, RegistryKey<World> dimension, String inventory_name) {
+        NbtCompound player_nbt = (NbtCompound) manager.load(uuid);
         if (player_nbt == null) player_nbt = new NbtCompound();
 
         NbtCompound dimension_nbt = player_nbt.getCompound(dimension.getValue().toString());
@@ -122,11 +162,11 @@ public class PersistentPlayer {
 
         dimension_nbt.put(inventory_name, inventory);
         player_nbt.put(dimension.getValue().toString(), dimension_nbt);
-        PersistenceManager.save(uuid, player_nbt);
+        manager.save(uuid, player_nbt);
     }
 
-    private static @NotNull NbtList loadInventory(@NotNull ServerPlayerEntity player, RegistryKey<World> dimension, String inventory_name) {
-        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+    private @NotNull NbtList loadInventory(@NotNull ServerPlayerEntity player, RegistryKey<World> dimension, String inventory_name) {
+        NbtCompound player_nbt = (NbtCompound) manager.load(player.getUuidAsString());
         if (player_nbt == null) return new NbtList();
 
         NbtCompound dimension_nbt = player_nbt.getCompound(dimension.getValue().toString());
@@ -138,25 +178,25 @@ public class PersistentPlayer {
         return inventory_nbt;
     }
 
-    private static void saveExperience(@NotNull ServerPlayerEntity player) {
-        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+    private void saveExperience(@NotNull ServerPlayerEntity player) {
+        NbtCompound player_nbt = (NbtCompound) manager.load(player.getUuidAsString());
         if (player_nbt == null) player_nbt = new NbtCompound();
 
         player_nbt.putInt("experience", player.experienceLevel);
         player_nbt.putFloat("experienceProgress", player.experienceProgress);
-        PersistenceManager.save(player.getUuidAsString(), player_nbt);
+        manager.save(player.getUuidAsString(), player_nbt);
     }
 
-    private static void loadExperience(@NotNull ServerPlayerEntity player) {
-        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+    private void loadExperience(@NotNull ServerPlayerEntity player) {
+        NbtCompound player_nbt = (NbtCompound) manager.load(player.getUuidAsString());
         if (player_nbt == null) return;
 
         player.setExperienceLevel(player_nbt.getInt("experience"));
         player.experienceProgress = player_nbt.getFloat("experienceProgress");
     }
 
-    private static void saveEffect(@NotNull ServerPlayerEntity player) {
-        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+    private void saveEffect(@NotNull ServerPlayerEntity player) {
+        NbtCompound player_nbt = (NbtCompound) manager.load(player.getUuidAsString());
         if (player_nbt == null) player_nbt = new NbtCompound();
 
         NbtList effects = new NbtList();
@@ -172,11 +212,11 @@ public class PersistentPlayer {
         }
 
         player_nbt.put("effects", effects);
-        PersistenceManager.save(player.getUuidAsString(), player_nbt);
+        manager.save(player.getUuidAsString(), player_nbt);
     }
 
-    private static void loadEffects(@NotNull ServerPlayerEntity player) {
-        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+    private void loadEffects(@NotNull ServerPlayerEntity player) {
+        NbtCompound player_nbt = (NbtCompound) manager.load(player.getUuidAsString());
         if (player_nbt == null) return;
 
         NbtList effects = player_nbt.getList("effects", 10);
@@ -196,8 +236,8 @@ public class PersistentPlayer {
         }
     }
 
-    private static void savePosition(@NotNull ServerPlayerEntity player) {
-        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+    private void savePosition(@NotNull ServerPlayerEntity player) {
+        NbtCompound player_nbt = (NbtCompound) manager.load(player.getUuidAsString());
         if (player_nbt == null) player_nbt = new NbtCompound();
 
         NbtCompound position = new NbtCompound();
@@ -206,11 +246,11 @@ public class PersistentPlayer {
         position.putDouble("z", player.getZ());
 
         player_nbt.put("position", position);
-        PersistenceManager.save(player.getUuidAsString(), player_nbt);
+        manager.save(player.getUuidAsString(), player_nbt);
     }
 
-    public static @NotNull Vec3d getPosition(@NotNull ServerPlayerEntity player) {
-        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+    public @NotNull Vec3d getPosition(@NotNull ServerPlayerEntity player) {
+        NbtCompound player_nbt = (NbtCompound) manager.load(player.getUuidAsString());
         if (player_nbt == null) return new Vec3d(0, 0, 0);
 
         NbtCompound position = player_nbt.getCompound("position");
@@ -223,23 +263,23 @@ public class PersistentPlayer {
         );
     }
 
-    private static void saveGamemode(@NotNull ServerPlayerEntity player) {
-        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+    private void saveGamemode(@NotNull ServerPlayerEntity player) {
+        NbtCompound player_nbt = (NbtCompound) manager.load(player.getUuidAsString());
         if (player_nbt == null) player_nbt = new NbtCompound();
 
         player_nbt.putInt("gamemode", player.interactionManager.getGameMode().getId());
-        PersistenceManager.save(player.getUuidAsString(), player_nbt);
+        manager.save(player.getUuidAsString(), player_nbt);
     }
 
-    public static GameMode getGamemode(@NotNull ServerPlayerEntity player) {
-        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+    public GameMode getGamemode(@NotNull ServerPlayerEntity player) {
+        NbtCompound player_nbt = (NbtCompound) manager.load(player.getUuidAsString());
         if (player_nbt == null) return GameMode.CREATIVE;
 
         return GameMode.byId(player_nbt.getInt("gamemode"));
     }
 
-    private static void saveAchievements(@NotNull ServerPlayerEntity player) {
-        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+    private void saveAchievements(@NotNull ServerPlayerEntity player) {
+        NbtCompound player_nbt = (NbtCompound) manager.load(player.getUuidAsString());
         if (player_nbt == null) player_nbt = new NbtCompound();
 
         MinecraftServer server = player.getServer();
@@ -262,11 +302,11 @@ public class PersistentPlayer {
         }
 
         player_nbt.put("achievements", achievements);
-        PersistenceManager.save(player.getUuidAsString(), player_nbt);
+        manager.save(player.getUuidAsString(), player_nbt);
     }
 
-    private static void loadAchievements(@NotNull ServerPlayerEntity player) {
-        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+    private void loadAchievements(@NotNull ServerPlayerEntity player) {
+        NbtCompound player_nbt = (NbtCompound) manager.load(player.getUuidAsString());
         if (player_nbt == null) return;
 
         NbtList achievements = player_nbt.getList("achievements", 10);
@@ -295,8 +335,8 @@ public class PersistentPlayer {
         announce.set(should_announce, server);
     }
 
-    private static void saveTrinkets(@NotNull ServerPlayerEntity player){
-        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+    private void saveTrinkets(@NotNull ServerPlayerEntity player){
+        NbtCompound player_nbt = (NbtCompound) manager.load(player.getUuidAsString());
         if (player_nbt == null) player_nbt = new NbtCompound();
 
         NbtCompound trinkets = new NbtCompound();
@@ -305,11 +345,11 @@ public class PersistentPlayer {
         }
 
         player_nbt.put("trinkets", trinkets);
-        PersistenceManager.save(player.getUuidAsString(), player_nbt);
+        manager.save(player.getUuidAsString(), player_nbt);
     }
 
-    private static void loadTrinkets(@NotNull ServerPlayerEntity player){
-        NbtCompound player_nbt = (NbtCompound) PersistenceManager.load(player.getUuidAsString());
+    private void loadTrinkets(@NotNull ServerPlayerEntity player){
+        NbtCompound player_nbt = (NbtCompound) manager.load(player.getUuidAsString());
         if (player_nbt == null) return;
 
         NbtCompound trinkets = player_nbt.getCompound("trinkets");

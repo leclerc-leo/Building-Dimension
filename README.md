@@ -8,23 +8,23 @@ This mod is required only on the server side.
 
 ## Description
 
-This mod allows you to switch between any dimension to its respective creative world.  
+This mod allows you to switch between any dimension to its respective building world.  
 These dimensions can be used to prepare builds, farms, etc. without affecting the main world.  
 
 ## Commands
 
-`/creative` allows you to switch between the dimension and its respective creative world  
-`/creative teleport ‹player›` allows you to teleport to a player in the same creative world as you  
-`/creative sync ‹radius›` allows you to synchronise chunks from the dimension to its respective creative world  
+`/building` allows you to switch between the dimension and its respective building world  
+`/building teleport ‹player›` allows you to teleport to a player in the same building world as you  
+`/building sync ‹radius›` allows you to synchronise chunks from the dimension to its respective building world  
 
 ## Restrictions 
 
-To prevent the Creative World from being used to cheat, the following restrictions are in place.  
+To prevent the Building World from being used to cheat, the following restrictions are in place.  
 Inventories are switched to its respective world inventory.  
 The following are only saved for the overworld:  
 - Experience  
 - Ender Chest Inventory  
-- Position when entering the creative world  
+- Position when entering the building world  
 - Effects
 - Achievements
 - [Trinkets](https://www.curseforge.com/minecraft/mc-mods/trinkets) (if the mod is present) 
@@ -49,5 +49,5 @@ If after an update you don't see the new options, you can store the file under a
 - [ ] Support more mods that add slots to the player inventory (idk which one exists)
 - [ ] Try to block any portal from any mod (needs testing)
 - [ ] Further improvements to chunk synchronisation
-- [ ] Update to Minecraft 1.20.2 and maybe try to add for earlier versions
+- [ ] Update to Minecraft 1.20.4 and maybe try to add for earlier versions
 - [ ] Better README.md and mod picture

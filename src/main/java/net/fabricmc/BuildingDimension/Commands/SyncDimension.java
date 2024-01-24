@@ -17,18 +17,46 @@ public class SyncDimension {
 
     public static MinecraftServer server;
 
+    /**
+     * Whether or not the chunks need to be synced
+     */
     public static boolean needsSync = false;
 
+    /**
+     * The chunks that need to be synced
+     * <p>
+     * see {@link net.fabricmc.BuildingDimension.Events.SyncDimension#init()} for the sync logic
+     */
     public static final Queue<Pair<WorldChunk, World>> chunksToSync = new LinkedList<>();
 
+    /**
+     * Method to be called to register the command if no radius is specified
+     *
+     * @param context The command context
+     * @return 1 if successful, 0 if not
+     */
     public static int sync_chunk_one(CommandContext<ServerCommandSource> context) {
         return sync(context, 1);
     }
 
+    /**
+     * Method to be called to register the command if a radius is specified
+     *
+     * @param context The command context
+     * @return 1 if successful, 0 if not
+     */
     public static int sync_chunk_radius(CommandContext<ServerCommandSource> context) {
         return sync(context, context.getArgument("radius", Integer.class));
     }
 
+    /**
+     * Marks the chunks in the radius around the player to be synced
+     * see {@link net.fabricmc.BuildingDimension.Events.SyncDimension#init()} for the sync logic
+     *
+     * @param context The command context
+     * @param radius The radius around the player to sync
+     * @return 1 if successful, 0 if not
+     */
     private static int sync(CommandContext<ServerCommandSource> context, int radius) {
         try {
             if ( server == null ) server = Objects.requireNonNull(context.getSource().getServer());
@@ -36,16 +64,16 @@ public class SyncDimension {
             BuildingDimension.log("Syncing chunks in radius " + radius + " around " + context.getSource().getPosition().toString());
 
             ServerWorld world;
-            ServerWorld creative_world;
+            ServerWorld building_world;
 
             if (context.getSource().getWorld().getRegistryKey().getValue().getNamespace().equals(BuildingDimension.MOD_ID)){
                 world = context.getSource().getServer().getWorld(
                         SwitchDimension.DIMENSIONS.get(context.getSource().getWorld().getRegistryKey())
                 );
-                creative_world = context.getSource().getWorld();
+                building_world = context.getSource().getWorld();
             } else {
                 world = context.getSource().getWorld();
-                creative_world = context.getSource().getServer().getWorld(
+                building_world = context.getSource().getServer().getWorld(
                         SwitchDimension.DIMENSIONS.get(context.getSource().getWorld().getRegistryKey())
                 );
             }
@@ -55,7 +83,7 @@ public class SyncDimension {
                 return -1;
             }
 
-            if (creative_world == null) {
+            if (building_world == null) {
                 BuildingDimension.log("Failed to sync chunks: unable to find world for which to sync chunks to");
                 return -1;
             }
@@ -66,7 +94,7 @@ public class SyncDimension {
                     int chunkZ = (int) Math.floor(context.getSource().getPosition().z / 16) + z;
 
                     WorldChunk chunk = world.getChunk(chunkX, chunkZ);
-                    chunksToSync.add(new Pair<>(chunk, creative_world));
+                    chunksToSync.add(new Pair<>(chunk, building_world));
                 }
             }
 

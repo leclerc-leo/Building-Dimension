@@ -1,5 +1,6 @@
 package net.fabricmc.BuildingDimension.mixin;
 
+import net.fabricmc.BuildingDimension.BuildingDimension;
 import net.fabricmc.BuildingDimension.Commands.SwitchDimension;
 import net.minecraft.entity.Entity;
 import net.minecraft.registry.RegistryKey;
@@ -32,8 +33,8 @@ public class ServerPlayerEntityMixin {
         RegistryKey<World> target_dim = destination.getRegistryKey();
         RegistryKey<World> player_dim = player.getServerWorld().getRegistryKey();
 
-        if (! target_dim.getValue().getNamespace().equals("building_dimension") &&
-                player_dim.getValue().getNamespace().equals("building_dimension")) {
+        if (! target_dim.getValue().getNamespace().equals(BuildingDimension.MOD_ID) &&
+                player_dim.getValue().getNamespace().equals(BuildingDimension.MOD_ID)) {
 
             if (! SwitchDimension.allowed_switching.contains(player.getUuid()))
                 cir.setReturnValue(player);

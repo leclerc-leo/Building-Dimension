@@ -21,6 +21,9 @@ public class Configs {
     public static boolean NON_OPS_SPECTATOR = true;
     public static boolean OP_SYNC = false;
 
+    /**
+     * Loads the config file
+     */
     public static void load() {
         if (!CONFIG_FILE.exists()) {
             generate();
@@ -43,6 +46,9 @@ public class Configs {
         );
     }
 
+    /**
+     * Generates the config file
+     */
     private static void generate() {
         try {
             Files.copy(
@@ -51,17 +57,24 @@ public class Configs {
             );
 
         } catch (IOException e) {
-            BuildingDimension.LOGGER.error("Failed to generate config file!");
+            BuildingDimension.log("Failed to generate config file!");
         }
     }
 
+    /**
+     * Checks if the config file contains the specified value and applies the specified function to it
+     *
+     * @param toml The toml instance
+     * @param config_value The config value to check
+     * @param apply The function to apply to the config value
+     */
     private static void check_config (@NotNull Toml toml, String config_value, Function<String, Object> apply) {
         if (toml.contains(config_value)) {
             try {
                 apply.apply(config_value);
 
             } catch (Exception e) {
-                BuildingDimension.LOGGER.error("Failed to load config value: " + config_value);
+                BuildingDimension.log("Failed to load config value: " + config_value);
             }
         }
     }
