@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class PersistentDimensions {
 
-    private final PersistenceManager  manager;
+    private final PersistenceManager manager;
 
     public PersistentDimensions(@NotNull MinecraftServer server) {
         this.manager = PersistenceManager.getSavedData(server);
@@ -33,7 +33,6 @@ public class PersistentDimensions {
         for (Map.Entry<RegistryKey<World>, RegistryKey<World>> entry : dimensions.entrySet()) {
             nbt.put(entry.getKey().getValue().toString(), worldKeyToNBT(entry.getValue()));
         }
-        BuildingDimension.log("Saving dimensions: " + nbt);
         manager.save("dimensions", nbt);
     }
 
@@ -45,14 +44,10 @@ public class PersistentDimensions {
      */
     public Map<RegistryKey<World>, RegistryKey<World>> load() {
         NbtCompound nbt = (NbtCompound) manager.load("dimensions");
-        BuildingDimension.log("Loading dimensions: " + nbt);
         if (nbt == null) return new HashMap<>();
 
         Map<RegistryKey<World>, RegistryKey<World>> dimensions = new HashMap<>();
         for (String key : nbt.getKeys()) {
-
-            BuildingDimension.log("Loading dimension: " + key + " : " + nbt.get(key));
-
             RegistryKey<World> dimension = nbtToWorldKey(nbt.get(key));
             if (dimension != null) {
                 RegistryKey<World> world = RegistryKey.of(

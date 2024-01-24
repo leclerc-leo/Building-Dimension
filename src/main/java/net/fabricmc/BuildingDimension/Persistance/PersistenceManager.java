@@ -21,7 +21,6 @@ public class PersistenceManager extends PersistentState {
      */
     @Override
     public NbtCompound writeNbt(@NotNull NbtCompound nbt) {
-        BuildingDimension.log("Saving data: " + saved_data);
         return nbt.copyFrom(saved_data);
     }
 

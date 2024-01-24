@@ -325,7 +325,6 @@ public class PersistentPlayer {
 
         for (int i = 0; i < achievements.size(); i++) {
             NbtCompound achievement = achievements.getCompound(i);
-            BuildingDimension.log("Granting achievement: " + achievement.getString("advancement") + " : " + achievement.getString("criterion"));
             player.getAdvancementTracker().grantCriterion(
                     server.getAdvancementLoader().get(new Identifier(achievement.getString("advancement"))),
                     achievement.getString("criterion")

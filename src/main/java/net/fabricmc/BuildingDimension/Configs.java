@@ -57,7 +57,7 @@ public class Configs {
             );
 
         } catch (IOException e) {
-            BuildingDimension.log("Failed to generate config file!");
+            BuildingDimension.logError("Failed to generate config file!", e, null);
         }
     }
 
@@ -74,7 +74,7 @@ public class Configs {
                 apply.apply(config_value);
 
             } catch (Exception e) {
-                BuildingDimension.log("Failed to load config value: " + config_value);
+                BuildingDimension.logError("Failed to load config value: " + config_value, e, null);
             }
         }
     }
