@@ -44,6 +44,12 @@ repositories {
 		name = "Ladysnake Libs"
 		url = 'https://maven.ladysnake.org/releases'
 	}
+
+	// the repository for iPortal
+	maven { url 'https://jitpack.io' }
+
+	// the repository for Cloth Config
+	maven { url 'https://maven.shedaniel.me' }
 }
 
 dependencies {
@@ -52,7 +58,7 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	include(implementation("com.moandjiezana.toml:toml4j:${project.toml4j_version}"))
-	include(modImplementation("xyz.nucleoid:fantasy:${project.fantasy_version}"))
+	include(modImplementation ("com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:${immersive_version}"))
 
 	// Mods that are optional for the mod to function
 	modImplementation "dev.emi:trinkets:${trinkets_version}"

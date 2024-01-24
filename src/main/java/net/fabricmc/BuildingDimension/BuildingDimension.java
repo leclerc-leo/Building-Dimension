@@ -10,6 +10,7 @@ import net.fabricmc.BuildingDimension.Persistance.PersistenceManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.CommandManager;
@@ -26,6 +27,10 @@ public class BuildingDimension implements ModInitializer {
 
 	public static final String MOD_ID = "building_dimension";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+
+	public static boolean isModLoaded(String modid) {
+		return FabricLoader.getInstance().isModLoaded(modid);
+	}
 
 	@Override
 	public void onInitialize() {

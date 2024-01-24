@@ -1,5 +1,6 @@
 package net.fabricmc.BuildingDimension.Persistance;
 
+import net.fabricmc.BuildingDimension.BuildingDimension;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.RegistryKey;
@@ -17,15 +18,20 @@ public class PersistentDimensions {
         for (Map.Entry<RegistryKey<World>, RegistryKey<World>> entry : dimensions.entrySet()) {
             nbt.put(entry.getKey().getValue().toString(), worldKeyToNBT(entry.getValue()));
         }
+        BuildingDimension.log("Saving dimensions: " + nbt);
         PersistenceManager.save("dimensions", nbt);
     }
 
     public static Map<RegistryKey<World>, RegistryKey<World>> load() {
         NbtCompound nbt = (NbtCompound) PersistenceManager.load("dimensions");
+        BuildingDimension.log("Loading dimensions: " + nbt);
         if (nbt == null) return new HashMap<>();
 
         Map<RegistryKey<World>, RegistryKey<World>> dimensions = new HashMap<>();
         for (String key : nbt.getKeys()) {
+
+            BuildingDimension.log("Loading dimension: " + key + " : " + nbt.get(key));
+
             RegistryKey<World> dimension = nbtToWorldKey(nbt.get(key));
             if (dimension != null) {
                 RegistryKey<World> world = RegistryKey.of(
@@ -33,6 +39,8 @@ public class PersistentDimensions {
                         new Identifier(key)
                 );
                 dimensions.put(world, dimension);
+            } else {
+                BuildingDimension.log("Failed to load dimension: " + key);
             }
         }
         return dimensions;

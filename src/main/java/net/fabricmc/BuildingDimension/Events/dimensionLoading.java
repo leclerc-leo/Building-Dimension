@@ -6,7 +6,6 @@ import net.fabricmc.BuildingDimension.Persistance.PersistentDimensions;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.world.World;
-import xyz.nucleoid.fantasy.Fantasy;
 
 import java.util.Map;
 import java.util.Objects;
@@ -20,8 +19,6 @@ public class dimensionLoading {
             Map<RegistryKey<World>, RegistryKey<World>> d = PersistentDimensions.load();
             SwitchDimension.DIMENSIONS = d;
 
-            Fantasy fantasy = Fantasy.get(server);
-
             Set<RegistryKey<World>> dimensions = Objects.requireNonNull(d).keySet();
 
             for (RegistryKey<World> dimension : dimensions) {
@@ -29,7 +26,7 @@ public class dimensionLoading {
                     continue;
                 }
 
-                SwitchDimension.createDimension(server, dimension, fantasy);
+                SwitchDimension.createDimension(server, dimension);
             }
         });
     }

@@ -15,11 +15,15 @@ public class PersistenceManager extends PersistentState {
 
     @Override
     public NbtCompound writeNbt(@NotNull NbtCompound nbt) {
+        BuildingDimension.log("Saving Persistance: " + saved_data);
+
         return nbt.copyFrom(saved_data);
     }
 
     public static @NotNull PersistenceManager createFromNbt(@NotNull NbtCompound nbt) {
         saved_data = nbt.copyFrom(nbt);
+
+        BuildingDimension.log("Loading Persistance: " + saved_data);
         return new PersistenceManager();
     }
 

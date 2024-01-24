@@ -23,11 +23,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.Objects;
 
-public class PersistentPlayer {
+import static net.fabricmc.BuildingDimension.BuildingDimension.isModLoaded;
 
-    private static boolean isModLoaded(String modid) {
-        return FabricLoader.getInstance().isModLoaded(modid);
-    }
+public class PersistentPlayer {
 
     public static void save(ServerPlayerEntity player, RegistryKey<World> dimension) {
         savePlayerInventory(player, dimension);
