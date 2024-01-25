@@ -12,22 +12,25 @@ import java.util.function.Function;
 
 public class Configs {
 
-    private static final String CONFIG_FILE_NAME = "building_dimension.toml";
-    public static final String CONFIG_FILE_PATH = FabricLoader.getInstance().getConfigDir() + "/" + CONFIG_FILE_NAME;
-    private static final File CONFIG_FILE = new File(CONFIG_FILE_PATH);
+    private static final String FILE_NAME = BuildingDimension.MOD_ID + ".toml";
+    public static final String FILE_PATH = FabricLoader.getInstance().getConfigDir() + "/" + FILE_NAME;
+    private static final File FILE = new File(FILE_PATH);
 
     public static int MAX_RADIUS = 8;
     public static boolean ONLY_OP = false;
     public static boolean NON_OPS_SPECTATOR = true;
     public static boolean OP_SYNC = false;
 
+    /**
+     * Loads the config file
+     */
     public static void load() {
-        if (!CONFIG_FILE.exists()) {
+        if (!FILE.exists()) {
             generate();
             return;
         }
 
-        Toml toml = new Toml().read(CONFIG_FILE);
+        Toml toml = new Toml().read(FILE);
 
         check_config(toml, "max_radius", (config_value) ->
             MAX_RADIUS = Integer.max(1, Integer.min(32, toml.getLong(config_value).intValue()))
@@ -43,25 +46,35 @@ public class Configs {
         );
     }
 
+    /**
+     * Generates the config file
+     */
     private static void generate() {
         try {
             Files.copy(
                     Objects.requireNonNull(BuildingDimension.class.getResourceAsStream("/assets/config/building_dimension.toml")),
-                    CONFIG_FILE.toPath()
+                    FILE.toPath()
             );
 
         } catch (IOException e) {
-            BuildingDimension.LOGGER.error("Failed to generate config file!");
+            BuildingDimension.logError("Failed to generate config file!", e, null);
         }
     }
 
+    /**
+     * Checks if the config file contains the specified value and applies the specified function to it
+     *
+     * @param toml The toml instance
+     * @param config_value The config value to check
+     * @param apply The function to apply to the config value
+     */
     private static void check_config (@NotNull Toml toml, String config_value, Function<String, Object> apply) {
         if (toml.contains(config_value)) {
             try {
                 apply.apply(config_value);
 
             } catch (Exception e) {
-                BuildingDimension.LOGGER.error("Failed to load config value: " + config_value);
+                BuildingDimension.logError("Failed to load config value: " + config_value, e, null);
             }
         }
     }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "creative_world",
+  "id": "building_dimension",
   "version": "${version}",
 
   "name": "Building Dimension",
@@ -12,11 +12,11 @@
     "feandrad (Felis)"
   ],
   "contact": {
-    "sources": "https://github.com/ActuallySleeping/Building-Dimension"
+    "sources": "https://github.com/leclerc-leo/Building-Dimension"
   },
 
   "license": "CC0-1.0",
-  "icon": "assets/modid/icon.png",
+  "icon": "assets/icon.png",
 
   "environment": "*",
   "entrypoints": {

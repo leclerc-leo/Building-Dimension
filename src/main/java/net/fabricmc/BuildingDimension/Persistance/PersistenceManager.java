@@ -11,35 +11,66 @@ import java.util.*;
 
 public class PersistenceManager extends PersistentState {
 
-    public static NbtCompound saved_data = new NbtCompound();
+    private static NbtCompound saved_data = new NbtCompound();
 
+    /**
+     * Method called when the server stops.
+     *
+     * @param nbt The NBT to save the data to
+     * @return The NBT to save the data to
+     */
     @Override
     public NbtCompound writeNbt(@NotNull NbtCompound nbt) {
         return nbt.copyFrom(saved_data);
     }
 
-    public static @NotNull PersistenceManager createFromNbt(@NotNull NbtCompound nbt) {
+    /**
+     * Method called when the server starts.
+     *
+     * @param nbt The NBT to load the data from
+     *            (this is the same NBT as the one returned by {@link PersistenceManager#writeNbt(NbtCompound)})
+     * @return The PersistenceManager instance
+     */
+    private static @NotNull PersistenceManager createFromNbt(@NotNull NbtCompound nbt) {
         saved_data = nbt.copyFrom(nbt);
         return new PersistenceManager();
     }
 
-    public static void getSavedData(@NotNull MinecraftServer server) {
+    /**
+     * I have no idea what this does.
+     *
+     * @param server The server instance
+     */
+    public static PersistenceManager getSavedData(@NotNull MinecraftServer server) {
         PersistentStateManager persistentStateManager = Objects.requireNonNull(server.
                 getWorld(World.OVERWORLD)).getPersistentStateManager();
 
-        PersistenceManager data = persistentStateManager.getOrCreate(
+        return persistentStateManager.getOrCreate(
                 PersistenceManager::createFromNbt,
                 PersistenceManager::new,
-            BuildingDimension.MOD_ID);
-
-        data.markDirty();
+                BuildingDimension.MOD_ID);
     }
 
-    public static void save(@NotNull String id, @NotNull NbtElement nbt) {
+    /**
+     * Saves the NBT data to the saved_data map.
+     * Which is then saved to the disk by {@link PersistenceManager#writeNbt(NbtCompound)}
+     *
+     * @param id The id of the data
+     * @param nbt The NBT data
+     */
+    public void save(@NotNull String id, @NotNull NbtElement nbt) {
         saved_data.put(id, nbt);
+        this.markDirty();
     }
 
-    public static NbtElement load(@NotNull String id) {
+    /**
+     * Loads the NBT data from the saved_data map.
+     * Which is then loaded from the disk by {@link PersistenceManager#createFromNbt(NbtCompound)}
+     *
+     * @param id The id of the data
+     * @return The NBT data
+     */
+    public NbtElement load(@NotNull String id) {
         return saved_data.get(id);
     }
 }
