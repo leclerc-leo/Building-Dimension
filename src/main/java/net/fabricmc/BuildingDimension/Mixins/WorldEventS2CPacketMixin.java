@@ -1,4 +1,4 @@
-package net.fabricmc.BuildingDimension.mixin;
+package net.fabricmc.BuildingDimension.Mixins;
 
 import net.minecraft.network.packet.s2c.play.WorldEventS2CPacket;
 import net.minecraft.util.math.BlockPos;

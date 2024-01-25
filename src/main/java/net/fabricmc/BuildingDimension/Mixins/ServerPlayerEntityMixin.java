@@ -1,4 +1,4 @@
-package net.fabricmc.BuildingDimension.mixin;
+package net.fabricmc.BuildingDimension.Mixins;
 
 import net.fabricmc.BuildingDimension.BuildingDimension;
 import net.fabricmc.BuildingDimension.Commands.SwitchDimension;

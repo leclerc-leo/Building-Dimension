@@ -1,23 +1,32 @@
-# Building Dimension
+This mod allows you to switch between any dimension to its respective building world.
+These dimensions can be used to prepare builds, farms, etc. without affecting the main world.
 
-## Setup
+# Installation Requirements
 
-This mod requires [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api) to be installed.  
-It was tested with Minecraft 1.20.1 and Fabric Loader 0.14.22.  
-This mod is required only on the server side.  
+[<img src="https://i.imgur.com/Ol1Tcf8.png" width="150px" alt="Fabric-API">](https://www.curseforge.com/minecraft/mc-mods/fabric-api)
 
-## Description
+This mod runs on [Fabric](https://fabricmc.net/) only and is only required on the server.
 
-This mod allows you to switch between any dimension to its respective building world.  
-These dimensions can be used to prepare builds, farms, etc. without affecting the main world.  
+# Commands
 
-## Commands
+<table>
+    <tbody>
+        <tr>
+            <td><code>/building</code></td>
+            <td>Switch between the dimension and its respective building world</td>
+        </tr>
+        <tr>
+            <td><code>/building teleport ‹player›</code></td>
+            <td>Teleport to a player in the same building world as you</td>
+        </tr>
+        <tr>
+            <td><code>/building sync ‹radius›</code></td>
+            <td>Synchronise chunks from the dimension to its respective building world</td>
+        </tr>
+    </tbody>
+</table>
 
-`/building` allows you to switch between the dimension and its respective building world  
-`/building teleport ‹player›` allows you to teleport to a player in the same building world as you  
-`/building sync ‹radius›` allows you to synchronise chunks from the dimension to its respective building world  
-
-## Restrictions 
+# Restrictions 
 
 To prevent the Building World from being used to cheat, the following restrictions are in place.  
 Inventories are switched to its respective world inventory.  
@@ -29,8 +38,7 @@ The following are only saved for the overworld:
 - Achievements
 - [Trinkets](https://www.curseforge.com/minecraft/mc-mods/trinkets) (if the mod is present) 
 
-Portals such as for the Nether or the End are disabled.  
-But other types of portals from other mods are not.
+Portals from other mods are blocked when being in the building dimension, but you can still use the `/building` command to leave.
 
 ## Configuration
 
@@ -51,3 +59,9 @@ If after an update you don't see the new options, you can store the file under a
 - [ ] Further improvements to chunk synchronisation
 - [ ] Update to Minecraft 1.20.4 and maybe try to add for earlier versions
 - [ ] Better README.md and mod picture
+
+<style>
+    td, tr{
+        border: none !important;
+    }
+</style>

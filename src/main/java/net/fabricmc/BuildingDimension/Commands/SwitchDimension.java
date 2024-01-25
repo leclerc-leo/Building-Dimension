@@ -42,7 +42,7 @@ public class SwitchDimension {
      * This is used to prevent players from leaving the building dimension.
      * They are added to the set when they use the /switch command and removed when they are teleported.
      * <p>
-     * see {@link net.fabricmc.BuildingDimension.mixin.ServerPlayerEntityMixin} for the logic behind blocking players from leaving the building dimension
+     * see {@link net.fabricmc.BuildingDimension.Mixins.ServerPlayerEntityMixin} for the logic behind blocking players from leaving the building dimension
      * It's particularly useful when the player is in dimensions from other mods and those mods use a different way to exit the dimension.
      * For example, the Custom Portals mod uses a custom portal block to exit the dimension, or the Bee Dimension mod uses a bee hive.
      */
