@@ -18,11 +18,6 @@ public class SyncDimension {
     public static MinecraftServer server;
 
     /**
-     * Whether or not the chunks need to be synced
-     */
-    public static boolean needsSync = false;
-
-    /**
      * The chunks that need to be synced
      * <p>
      * see {@link net.fabricmc.BuildingDimension.Events.SyncDimension#init()} for the sync logic
@@ -97,8 +92,6 @@ public class SyncDimension {
                     chunksToSync.add(new Pair<>(chunk, building_world));
                 }
             }
-
-            needsSync = true;
 
             return 0;
         } catch (Exception e) {

@@ -24,7 +24,6 @@ public class SyncDimension {
 
     private final static List<WorldChunk> ChunksToProcess = new ArrayList<>();
     private final static Map<ChunkPos, Set<Vec3i>> PosToProcess = new HashMap<>();
-    private static boolean needsProcessing = false;
 
     /**
      * Makes sure that the chunks are synced at a reasonable rate.
@@ -35,7 +34,7 @@ public class SyncDimension {
      */
     public static void init() {
         ServerTickEvents.END_SERVER_TICK.register((server) -> {
-            if (needsSync) {
+            if (!chunksToSync.isEmpty()) {
                 Pair<WorldChunk, World> pair = chunksToSync.remove();
                 WorldChunk chunk = pair.getLeft();
 
@@ -43,19 +42,11 @@ public class SyncDimension {
                     syncChunk(chunk, pair.getRight());
                 }
 
-                if (chunksToSync.isEmpty()) {
-                    needsSync = false;
-                }
-
-            } else if (needsProcessing) {
+            } else if (!PosToProcess.isEmpty()) {
                 WorldChunk chunk = ChunksToProcess.remove(0);
 
                 if (chunk != null) {
                     postProcess(chunk);
-                }
-
-                if (ChunksToProcess.isEmpty()) {
-                    needsProcessing = false;
                 }
             }
         });
@@ -99,7 +90,6 @@ public class SyncDimension {
 
         PosToProcess.put(building_chunk.getPos(), posToProcess);
         ChunksToProcess.add(building_chunk);
-        needsProcessing = true;
     }
 
     /**

@@ -11,7 +11,7 @@ import java.util.*;
 
 public class PersistenceManager extends PersistentState {
 
-    public static NbtCompound saved_data = new NbtCompound();
+    private static NbtCompound saved_data = new NbtCompound();
 
     /**
      * Method called when the server stops.

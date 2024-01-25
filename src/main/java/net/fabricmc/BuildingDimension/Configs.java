@@ -12,9 +12,9 @@ import java.util.function.Function;
 
 public class Configs {
 
-    private static final String CONFIG_FILE_NAME = "building_dimension.toml";
-    public static final String CONFIG_FILE_PATH = FabricLoader.getInstance().getConfigDir() + "/" + CONFIG_FILE_NAME;
-    private static final File CONFIG_FILE = new File(CONFIG_FILE_PATH);
+    private static final String FILE_NAME = BuildingDimension.MOD_ID + ".toml";
+    public static final String FILE_PATH = FabricLoader.getInstance().getConfigDir() + "/" + FILE_NAME;
+    private static final File FILE = new File(FILE_PATH);
 
     public static int MAX_RADIUS = 8;
     public static boolean ONLY_OP = false;
@@ -25,12 +25,12 @@ public class Configs {
      * Loads the config file
      */
     public static void load() {
-        if (!CONFIG_FILE.exists()) {
+        if (!FILE.exists()) {
             generate();
             return;
         }
 
-        Toml toml = new Toml().read(CONFIG_FILE);
+        Toml toml = new Toml().read(FILE);
 
         check_config(toml, "max_radius", (config_value) ->
             MAX_RADIUS = Integer.max(1, Integer.min(32, toml.getLong(config_value).intValue()))
@@ -53,7 +53,7 @@ public class Configs {
         try {
             Files.copy(
                     Objects.requireNonNull(BuildingDimension.class.getResourceAsStream("/assets/config/building_dimension.toml")),
-                    CONFIG_FILE.toPath()
+                    FILE.toPath()
             );
 
         } catch (IOException e) {
