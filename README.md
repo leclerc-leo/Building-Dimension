@@ -59,4 +59,3 @@ If after an update you don't see the new options, you can store the file under a
 - [ ] Further improvements to chunk synchronisation
 - [ ] Update to Minecraft 1.20.4 and maybe try to add for earlier versions
 - [ ] Better README.md and mod picture
-
