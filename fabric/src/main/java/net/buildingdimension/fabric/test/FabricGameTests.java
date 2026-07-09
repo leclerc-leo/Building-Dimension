@@ -3,6 +3,7 @@ package net.buildingdimension.fabric.test;
 import net.buildingdimension.test.AccessoryGameTests;
 import net.buildingdimension.test.DeathGameTests;
 import net.buildingdimension.test.DisconnectGameTests;
+import net.buildingdimension.test.GameRulesGameTests;
 import net.buildingdimension.test.PortalGameTests;
 import net.buildingdimension.test.SwitchGameTests;
 import net.buildingdimension.test.SyncGameTests;
@@ -111,5 +112,15 @@ public class FabricGameTests {
     @GameTest(structure = STRUCTURE, maxTicks = 40)
     public void accessorySlotRoundTripsWhenAccessoryModInstalled(GameTestHelper helper) {
         AccessoryGameTests.testAccessorySlotRoundTripsWhenAccessoryModInstalled(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void mobGriefingDisabledByDefault(GameTestHelper helper) {
+        GameRulesGameTests.testMobGriefingDisabledByDefault(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void mobSpawningDisabledByDefault(GameTestHelper helper) {
+        GameRulesGameTests.testMobSpawningDisabledByDefault(helper);
     }
 }

@@ -4,6 +4,7 @@ import net.buildingdimension.Constants;
 import net.buildingdimension.test.AccessoryGameTests;
 import net.buildingdimension.test.DeathGameTests;
 import net.buildingdimension.test.DisconnectGameTests;
+import net.buildingdimension.test.GameRulesGameTests;
 import net.buildingdimension.test.PortalGameTests;
 import net.buildingdimension.test.SwitchGameTests;
 import net.buildingdimension.test.SyncGameTests;
@@ -59,6 +60,8 @@ public final class NeoForgeGameTests {
         register("accessory_hook_is_no_op_without_an_accessory_mod_installed", AccessoryGameTests::testAccessoryHookIsNoOpWithoutAnAccessoryModInstalled);
         register("switch_succeeds_without_an_accessory_mod_installed", AccessoryGameTests::testSwitchSucceedsWithoutAnAccessoryModInstalled);
         register("accessory_slot_round_trips_when_accessory_mod_installed", AccessoryGameTests::testAccessorySlotRoundTripsWhenAccessoryModInstalled);
+        register("mob_griefing_disabled_by_default", GameRulesGameTests::testMobGriefingDisabledByDefault);
+        register("mob_spawning_disabled_by_default", GameRulesGameTests::testMobSpawningDisabledByDefault);
     }
 
     private NeoForgeGameTests() {
@@ -95,6 +98,8 @@ public final class NeoForgeGameTests {
         registerInstance(event, environment, "accessory_hook_is_no_op_without_an_accessory_mod_installed", 40);
         registerInstance(event, environment, "switch_succeeds_without_an_accessory_mod_installed", 40);
         registerInstance(event, environment, "accessory_slot_round_trips_when_accessory_mod_installed", 40);
+        registerInstance(event, environment, "mob_griefing_disabled_by_default", 40);
+        registerInstance(event, environment, "mob_spawning_disabled_by_default", 40);
     }
 
     private static void registerInstance(RegisterGameTestsEvent event, Holder<TestEnvironmentDefinition<?>> environment, String name, int maxTicks) {

@@ -18,8 +18,12 @@ public final class BuildingDimensionConfig {
 
     private static final String FILE_NAME = Constants.MOD_ID + ".properties";
     private static final String GENERATE_STRUCTURES_KEY = "generateStructuresInBuildingDimensions";
+    private static final String DISABLE_MOB_GRIEFING_KEY = "disableMobGriefing";
+    private static final String DISABLE_MOB_SPAWNING_KEY = "disableMobSpawning";
 
     private static volatile boolean generateStructuresInBuildingDimensions = false;
+    private static volatile boolean disableMobGriefing = true;
+    private static volatile boolean disableMobSpawning = true;
 
     private BuildingDimensionConfig() {
     }
@@ -32,6 +36,24 @@ public final class BuildingDimensionConfig {
      */
     public static boolean generateStructuresInBuildingDimensions() {
         return generateStructuresInBuildingDimensions;
+    }
+
+    /**
+     * Whether the server should force the {@code mobGriefing} game rule off on startup. Enabled by
+     * default, since griefing (creepers, endermen, etc.) undoes builds; game rules are server-wide
+     * in vanilla, so this affects every dimension, not just building ones.
+     */
+    public static boolean disableMobGriefing() {
+        return disableMobGriefing;
+    }
+
+    /**
+     * Whether the server should force the {@code doMobSpawning} game rule off on startup. Enabled
+     * by default, for the same reason as {@link #disableMobGriefing()}: server-wide, not just
+     * building dimensions.
+     */
+    public static boolean disableMobSpawning() {
+        return disableMobSpawning;
     }
 
     /**
@@ -51,8 +73,14 @@ public final class BuildingDimensionConfig {
 
         generateStructuresInBuildingDimensions = Boolean.parseBoolean(
             properties.getProperty(GENERATE_STRUCTURES_KEY, "false"));
+        disableMobGriefing = Boolean.parseBoolean(
+            properties.getProperty(DISABLE_MOB_GRIEFING_KEY, "true"));
+        disableMobSpawning = Boolean.parseBoolean(
+            properties.getProperty(DISABLE_MOB_SPAWNING_KEY, "true"));
 
         properties.setProperty(GENERATE_STRUCTURES_KEY, String.valueOf(generateStructuresInBuildingDimensions));
+        properties.setProperty(DISABLE_MOB_GRIEFING_KEY, String.valueOf(disableMobGriefing));
+        properties.setProperty(DISABLE_MOB_SPAWNING_KEY, String.valueOf(disableMobSpawning));
         save(file, properties);
     }
 

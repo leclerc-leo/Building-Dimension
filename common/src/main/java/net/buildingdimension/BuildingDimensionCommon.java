@@ -9,6 +9,7 @@ import net.buildingdimension.dimension.DimensionFactory;
 import net.buildingdimension.platform.Services;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.gamerules.GameRules;
 
 /**
  * Loader-independent entry points. The Fabric and NeoForge subprojects delegate here from their
@@ -35,6 +36,22 @@ public class BuildingDimensionCommon {
      */
     public static void onServerStarted(MinecraftServer server) {
         DimensionFactory.restoreAll(server);
+        applyConfiguredGameRules(server);
+    }
+
+    /**
+     * Game rules are server-wide in vanilla (there's no per-dimension override), so this forces
+     * them off for the whole server on startup when configured to, rather than just for building
+     * dimensions.
+     */
+    private static void applyConfiguredGameRules(MinecraftServer server) {
+        GameRules gameRules = server.getGameRules();
+        if (BuildingDimensionConfig.disableMobGriefing()) {
+            gameRules.set(GameRules.MOB_GRIEFING, false, server);
+        }
+        if (BuildingDimensionConfig.disableMobSpawning()) {
+            gameRules.set(GameRules.SPAWN_MOBS, false, server);
+        }
     }
 
     /**

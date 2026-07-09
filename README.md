@@ -43,7 +43,5 @@ Run a dev client with `./gradlew :fabric:runClient` or `./gradlew :neoforge:runC
 | Key | Default | Description |
 | --- | --- | --- |
 | `generateStructuresInBuildingDimensions` | `false` | Whether vanilla/modded structures (villages, strongholds, etc.) are allowed to generate inside building dimensions. Off by default, since building dimensions exist to plan builds around the player's own terrain, not to be explored themselves. |
-
-## Roadmap
-
-- [ ] Disable mob griefing + mob spawning (set both as disabled by default, add in configs).
+| `disableMobGriefing` | `true` | Forces the server-wide `mobGriefing` game rule off on startup, so builds aren't undone by creepers, endermen, etc. Game rules are server-wide in vanilla, so this affects every dimension, not just building ones. |
+| `disableMobSpawning` | `true` | Forces the server-wide `doMobSpawning` game rule off on startup. Same server-wide caveat as `disableMobGriefing`. |
