@@ -1,5 +1,6 @@
 package net.buildingdimension.fabric.test;
 
+import net.buildingdimension.test.PortalGameTests;
 import net.buildingdimension.test.SwitchGameTests;
 import net.buildingdimension.test.SyncGameTests;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
@@ -62,5 +63,20 @@ public class FabricGameTests {
     @GameTest(structure = STRUCTURE, maxTicks = 200)
     public void syncFromInsideBuildingDimensionCopiesFromSource(GameTestHelper helper) {
         SyncGameTests.testSyncFromInsideBuildingDimensionCopiesFromSource(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void portalBlockedLeavingBuildingDimension(GameTestHelper helper) {
+        PortalGameTests.testPortalBlockedLeavingBuildingDimension(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void portalBlockedEnteringBuildingDimension(GameTestHelper helper) {
+        PortalGameTests.testPortalBlockedEnteringBuildingDimension(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void portalUnaffectedBetweenRealDimensions(GameTestHelper helper) {
+        PortalGameTests.testPortalUnaffectedBetweenRealDimensions(helper);
     }
 }

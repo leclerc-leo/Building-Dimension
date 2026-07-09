@@ -1,6 +1,7 @@
 package net.buildingdimension.neoforge.test;
 
 import net.buildingdimension.Constants;
+import net.buildingdimension.test.PortalGameTests;
 import net.buildingdimension.test.SwitchGameTests;
 import net.buildingdimension.test.SyncGameTests;
 import net.minecraft.core.Holder;
@@ -46,6 +47,9 @@ public final class NeoForgeGameTests {
         register("sync_copies_blocks_and_light_into_building_dimension", SyncGameTests::testSyncCopiesBlocksAndLightIntoBuildingDimension);
         register("sync_respects_radius", SyncGameTests::testSyncRespectsRadius);
         register("sync_from_inside_building_dimension_copies_from_source", SyncGameTests::testSyncFromInsideBuildingDimensionCopiesFromSource);
+        register("portal_blocked_leaving_building_dimension", PortalGameTests::testPortalBlockedLeavingBuildingDimension);
+        register("portal_blocked_entering_building_dimension", PortalGameTests::testPortalBlockedEnteringBuildingDimension);
+        register("portal_unaffected_between_real_dimensions", PortalGameTests::testPortalUnaffectedBetweenRealDimensions);
     }
 
     private NeoForgeGameTests() {
@@ -73,6 +77,9 @@ public final class NeoForgeGameTests {
         registerInstance(event, environment, "sync_copies_blocks_and_light_into_building_dimension", 200);
         registerInstance(event, environment, "sync_respects_radius", 200);
         registerInstance(event, environment, "sync_from_inside_building_dimension_copies_from_source", 200);
+        registerInstance(event, environment, "portal_blocked_leaving_building_dimension", 40);
+        registerInstance(event, environment, "portal_blocked_entering_building_dimension", 40);
+        registerInstance(event, environment, "portal_unaffected_between_real_dimensions", 40);
     }
 
     private static void registerInstance(RegisterGameTestsEvent event, Holder<TestEnvironmentDefinition<?>> environment, String name, int maxTicks) {
