@@ -1,0 +1,13 @@
+{
+    "required": true,
+    "package": "net.buildingdimension.mixin",
+    "compatibilityLevel": "JAVA_25",
+    "mixins": [
+        "ChunkStatusTasksMixin",
+        "MinecraftServerAccessor",
+        "ServerLevelAccessor"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

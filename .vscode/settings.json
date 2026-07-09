@@ -1,0 +1,16 @@
+{
+  "java.import.gradle.java.home": "C:/Users/leo/.jdks/openjdk-24.0.1",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-24",
+      "path": "C:/Users/leo/.jdks/openjdk-24.0.1"
+    },
+    {
+      "name": "JavaSE-25",
+      "path": "C:/Users/leo/.gradle/jdks/eclipse_adoptium-25-amd64-windows.2",
+      "default": true
+    }
+  ],
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.compile.nullAnalysis.mode": "automatic"
+}
