@@ -45,6 +45,15 @@ neoForge {
     }
 }
 
+dependencies {
+    // Not a real dependency of the mod (see NeoForgeAccessoryHelper: Curios is only ever reached via
+    // reflection). Set only by scripts/test-accessory-mods.sh, to put a real, downloaded Curios jar
+    // on the runGameTestServer classpath so the reflection path can be exercised against the genuine API.
+    if (project.hasProperty('accessoryTestJar')) {
+        runtimeOnly(files(project.property('accessoryTestJar')))
+    }
+}
+
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 // Implement mcgradleconventions loader attribute

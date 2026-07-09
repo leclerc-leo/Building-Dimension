@@ -2,6 +2,7 @@ package net.buildingdimension.persistence;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.buildingdimension.platform.Services;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,7 +19,8 @@ import java.util.List;
 
 /**
  * A full copy of everything a player could use to smuggle progress across the creative border:
- * inventory, ender chest, experience, effects, health/food and game mode, plus where they were.
+ * inventory, ender chest, accessory slots (Trinkets/Curios, if installed), experience, effects,
+ * health/food and game mode, plus where they were.
  * <p>
  * Captured right before a /switch and restored right after the teleport, so each side of the
  * border keeps its own completely independent player state.
@@ -31,6 +33,7 @@ public record PlayerSnapshot(
     GameType gameType,
     List<ItemStack> inventory,
     List<ItemStack> enderChest,
+    List<ItemStack> accessories,
     int xpLevel,
     float xpProgress,
     int totalXp,
@@ -50,6 +53,7 @@ public record PlayerSnapshot(
         GAME_TYPE_CODEC.fieldOf("game_type").forGetter(PlayerSnapshot::gameType),
         ItemStack.OPTIONAL_CODEC.listOf().fieldOf("inventory").forGetter(PlayerSnapshot::inventory),
         ItemStack.OPTIONAL_CODEC.listOf().fieldOf("ender_chest").forGetter(PlayerSnapshot::enderChest),
+        ItemStack.OPTIONAL_CODEC.listOf().optionalFieldOf("accessories", List.of()).forGetter(PlayerSnapshot::accessories),
         Codec.INT.fieldOf("xp_level").forGetter(PlayerSnapshot::xpLevel),
         Codec.FLOAT.fieldOf("xp_progress").forGetter(PlayerSnapshot::xpProgress),
         Codec.INT.fieldOf("total_xp").forGetter(PlayerSnapshot::totalXp),
@@ -68,6 +72,7 @@ public record PlayerSnapshot(
             player.gameMode.getGameModeForPlayer(),
             copyContainer(player.getInventory()),
             copyContainer(player.getEnderChestInventory()),
+            Services.ACCESSORIES.capture(player),
             player.experienceLevel,
             player.experienceProgress,
             player.totalExperience,
@@ -84,6 +89,7 @@ public record PlayerSnapshot(
     public void restore(ServerPlayer player) {
         restoreContainer(player.getInventory(), inventory);
         restoreContainer(player.getEnderChestInventory(), enderChest);
+        Services.ACCESSORIES.restore(player, accessories);
 
         player.setGameMode(gameType);
 
@@ -109,6 +115,7 @@ public record PlayerSnapshot(
     public static void clean(ServerPlayer player) {
         player.getInventory().clearContent();
         player.getEnderChestInventory().clearContent();
+        Services.ACCESSORIES.clear(player);
 
         player.experienceLevel = 0;
         player.experienceProgress = 0;

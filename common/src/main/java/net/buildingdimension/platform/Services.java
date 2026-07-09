@@ -1,6 +1,7 @@
 package net.buildingdimension.platform;
 
 import net.buildingdimension.Constants;
+import net.buildingdimension.platform.services.IAccessoryHelper;
 import net.buildingdimension.platform.services.IPlatformHelper;
 
 import java.util.ServiceLoader;
@@ -11,6 +12,7 @@ import java.util.ServiceLoader;
 public class Services {
 
     public static final IPlatformHelper PLATFORM = load(IPlatformHelper.class);
+    public static final IAccessoryHelper ACCESSORIES = load(IAccessoryHelper.class);
 
     public static <T> T load(Class<T> clazz) {
 

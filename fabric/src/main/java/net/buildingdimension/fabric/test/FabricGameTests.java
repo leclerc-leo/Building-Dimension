@@ -1,5 +1,6 @@
 package net.buildingdimension.fabric.test;
 
+import net.buildingdimension.test.AccessoryGameTests;
 import net.buildingdimension.test.DeathGameTests;
 import net.buildingdimension.test.DisconnectGameTests;
 import net.buildingdimension.test.PortalGameTests;
@@ -95,5 +96,20 @@ public class FabricGameTests {
     @GameTest(structure = STRUCTURE, maxTicks = 40)
     public void buildingDimensionRestoredBeforeReconnect(GameTestHelper helper) {
         DisconnectGameTests.testBuildingDimensionRestoredBeforeReconnect(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void accessoryHookIsNoOpWithoutAnAccessoryModInstalled(GameTestHelper helper) {
+        AccessoryGameTests.testAccessoryHookIsNoOpWithoutAnAccessoryModInstalled(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void switchSucceedsWithoutAnAccessoryModInstalled(GameTestHelper helper) {
+        AccessoryGameTests.testSwitchSucceedsWithoutAnAccessoryModInstalled(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void accessorySlotRoundTripsWhenAccessoryModInstalled(GameTestHelper helper) {
+        AccessoryGameTests.testAccessorySlotRoundTripsWhenAccessoryModInstalled(helper);
     }
 }

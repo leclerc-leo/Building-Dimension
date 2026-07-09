@@ -3,7 +3,7 @@
 A Minecraft mod that gives every dimension a **creative twin** where players can freely plan their builds, then come back to survival with nothing gained and nothing lost.
 
 - **`/switch`** — teleports you between the dimension you are in and its creative "building" counterpart. The building dimensions share the world seed, so the terrain is identical and you arrive at the same coordinates.
-- **Isolated player state** — your inventory, ender chest, XP, effects, health, food and game mode are snapshotted and swapped on every switch. Nothing can be smuggled out of (or into) the building dimensions. Your creative-side inventory is also remembered between visits.
+- **Isolated player state** — your inventory, ender chest, accessory slots (Trinkets/Curios, if installed), XP, effects, health, food and game mode are snapshotted and swapped on every switch. Nothing can be smuggled out of (or into) the building dimensions. Your creative-side inventory is also remembered between visits.
 - **`/switch sync <radius>`** *(planned, port from v1)* — copies chunks from the real dimension into the building one so you can plan around your existing builds.
 
 ## Supported loaders
@@ -46,5 +46,4 @@ Run a dev client with `./gradlew :fabric:runClient` or `./gradlew :neoforge:runC
 
 ## Roadmap
 
-- [ ] Hooks for inventory-adding mods (Trinkets, Curios) via the platform-service layer
 - [ ] Disable mob griefing + mob spawning (set both as disabled by default, add in configs).
