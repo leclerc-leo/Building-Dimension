@@ -46,6 +46,5 @@ Run a dev client with `./gradlew :fabric:runClient` or `./gradlew :neoforge:runC
 
 ## Roadmap
 
-- [ ] Handle death/disconnect inside a building dimension
 - [ ] Hooks for inventory-adding mods (Trinkets, Curios) via the platform-service layer
 - [ ] Disable mob griefing + mob spawning (set both as disabled by default, add in configs).

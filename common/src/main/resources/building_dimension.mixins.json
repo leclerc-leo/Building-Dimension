@@ -6,7 +6,8 @@
         "ChunkStatusTasksMixin",
         "EntityMixin",
         "MinecraftServerAccessor",
-        "ServerLevelAccessor"
+        "ServerLevelAccessor",
+        "ServerPlayerMixin"
     ],
     "injectors": {
         "defaultRequire": 1

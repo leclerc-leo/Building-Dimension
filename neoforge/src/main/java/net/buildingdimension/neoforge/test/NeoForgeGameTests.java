@@ -1,6 +1,8 @@
 package net.buildingdimension.neoforge.test;
 
 import net.buildingdimension.Constants;
+import net.buildingdimension.test.DeathGameTests;
+import net.buildingdimension.test.DisconnectGameTests;
 import net.buildingdimension.test.PortalGameTests;
 import net.buildingdimension.test.SwitchGameTests;
 import net.buildingdimension.test.SyncGameTests;
@@ -50,6 +52,9 @@ public final class NeoForgeGameTests {
         register("portal_blocked_leaving_building_dimension", PortalGameTests::testPortalBlockedLeavingBuildingDimension);
         register("portal_blocked_entering_building_dimension", PortalGameTests::testPortalBlockedEnteringBuildingDimension);
         register("portal_unaffected_between_real_dimensions", PortalGameTests::testPortalUnaffectedBetweenRealDimensions);
+        register("death_in_building_dimension_respawns_in_building_dimension", DeathGameTests::testDeathInBuildingDimensionRespawnsInBuildingDimension);
+        register("death_in_real_dimension_unaffected", DeathGameTests::testDeathInRealDimensionUnaffected);
+        register("building_dimension_restored_before_reconnect", DisconnectGameTests::testBuildingDimensionRestoredBeforeReconnect);
     }
 
     private NeoForgeGameTests() {
@@ -80,6 +85,9 @@ public final class NeoForgeGameTests {
         registerInstance(event, environment, "portal_blocked_leaving_building_dimension", 40);
         registerInstance(event, environment, "portal_blocked_entering_building_dimension", 40);
         registerInstance(event, environment, "portal_unaffected_between_real_dimensions", 40);
+        registerInstance(event, environment, "death_in_building_dimension_respawns_in_building_dimension", 40);
+        registerInstance(event, environment, "death_in_real_dimension_unaffected", 40);
+        registerInstance(event, environment, "building_dimension_restored_before_reconnect", 40);
     }
 
     private static void registerInstance(RegisterGameTestsEvent event, Holder<TestEnvironmentDefinition<?>> environment, String name, int maxTicks) {

@@ -1,5 +1,7 @@
 package net.buildingdimension.fabric.test;
 
+import net.buildingdimension.test.DeathGameTests;
+import net.buildingdimension.test.DisconnectGameTests;
 import net.buildingdimension.test.PortalGameTests;
 import net.buildingdimension.test.SwitchGameTests;
 import net.buildingdimension.test.SyncGameTests;
@@ -78,5 +80,20 @@ public class FabricGameTests {
     @GameTest(structure = STRUCTURE, maxTicks = 40)
     public void portalUnaffectedBetweenRealDimensions(GameTestHelper helper) {
         PortalGameTests.testPortalUnaffectedBetweenRealDimensions(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void deathInBuildingDimensionRespawnsInBuildingDimension(GameTestHelper helper) {
+        DeathGameTests.testDeathInBuildingDimensionRespawnsInBuildingDimension(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void deathInRealDimensionUnaffected(GameTestHelper helper) {
+        DeathGameTests.testDeathInRealDimensionUnaffected(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void buildingDimensionRestoredBeforeReconnect(GameTestHelper helper) {
+        DisconnectGameTests.testBuildingDimensionRestoredBeforeReconnect(helper);
     }
 }
