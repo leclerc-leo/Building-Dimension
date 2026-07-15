@@ -22,11 +22,32 @@ public interface IAccessoryHelper {
 
     /**
      * Writes previously captured items back into the accessory slots, in the same order they were
-     * captured in. If the current slot layout is shorter than {@code items}, the extras are
-     * dropped; if longer, the remaining slots are left untouched.
+     * captured in. If the current slot layout is shorter than {@code items} (e.g. the accessory mod
+     * was updated or removed between capture and restore), the extras must go through
+     * {@link #depositOverflow} rather than being dropped; if longer, the remaining slots are left
+     * untouched.
      */
     void restore(ServerPlayer player, List<ItemStack> items);
 
     /** Empties every accessory slot. */
     void clear(ServerPlayer player);
+
+    /**
+     * Returns whatever a {@link #restore} couldn't fit back into accessory slots to the player
+     * instead of silently discarding it: first the main inventory, then the ground at their feet if
+     * that's full too. {@code items.subList(consumed, items.size())} is the usual way to call this
+     * from a {@code restore} implementation.
+     */
+    static void depositOverflow(ServerPlayer player, List<ItemStack> overflow) {
+        for (ItemStack stack : overflow) {
+            if (stack.isEmpty()) {
+                continue;
+            }
+            ItemStack remainder = stack.copy();
+            player.getInventory().add(remainder);
+            if (!remainder.isEmpty()) {
+                player.drop(remainder, false);
+            }
+        }
+    }
 }

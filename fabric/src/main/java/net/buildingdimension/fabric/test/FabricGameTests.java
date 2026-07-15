@@ -1,5 +1,6 @@
 package net.buildingdimension.fabric.test;
 
+import net.buildingdimension.test.AccessGameTests;
 import net.buildingdimension.test.AccessoryGameTests;
 import net.buildingdimension.test.DeathGameTests;
 import net.buildingdimension.test.DisconnectGameTests;
@@ -122,5 +123,30 @@ public class FabricGameTests {
     @GameTest(structure = STRUCTURE, maxTicks = 40)
     public void mobSpawningDisabledByDefault(GameTestHelper helper) {
         GameRulesGameTests.testMobSpawningDisabledByDefault(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void defaultAccessIsUnrestricted(GameTestHelper helper) {
+        AccessGameTests.testDefaultAccessIsUnrestricted(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void opRequiredDeniesNonOperator(GameTestHelper helper) {
+        AccessGameTests.testOpRequiredDeniesNonOperator(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void opRequiredWithSpectatorFallbackAllowsSpectator(GameTestHelper helper) {
+        AccessGameTests.testOpRequiredWithSpectatorFallbackAllowsSpectator(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 40)
+    public void whitelistGatesAccess(GameTestHelper helper) {
+        AccessGameTests.testWhitelistGatesAccess(helper);
+    }
+
+    @GameTest(structure = STRUCTURE, maxTicks = 200)
+    public void syncCopiesChestContentsAndItemFrame(GameTestHelper helper) {
+        SyncGameTests.testSyncCopiesChestContentsAndItemFrame(helper);
     }
 }

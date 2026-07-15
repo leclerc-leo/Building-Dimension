@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.buildingdimension.Constants;
+import net.buildingdimension.config.BuildingDimensionConfig;
 import net.buildingdimension.dimension.BuildingDimensions;
 import net.buildingdimension.dimension.ChunkSync;
 import net.minecraft.commands.CommandSourceStack;
@@ -13,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -21,13 +23,19 @@ import java.util.Optional;
 
 /**
  * /sync [radius] — copies the chunks around the player from a dimension into its building
- * counterpart (block states, then post-processing and lighting), so the building dimension shows
- * what's actually been built in survival instead of just raw terrain from the shared seed.
+ * counterpart (block states, block entities, entities, then post-processing and lighting), so the
+ * building dimension shows what's actually been built in survival instead of just raw terrain from
+ * the shared seed.
  * <p>
  * Always copies source → building, regardless of which of the two the player is standing in when
  * they run it — syncing is one-directional by design, there is no "publish back to survival".
  * The actual copying happens over subsequent ticks via {@link ChunkSync}; this command only
  * resolves the two dimensions and queues the chunks.
+ * <p>
+ * A non-operator's radius is capped at {@link BuildingDimensionConfig#syncMaxRadius()} — left
+ * uncapped, {@code /sync} would let any player queue an arbitrarily large number of chunk
+ * generations at once, which can fill the disk and stall the chunk system for everyone.
+ * Operators are never capped.
  */
 public class SyncCommand {
 
@@ -47,26 +55,35 @@ public class SyncCommand {
         ServerPlayer player = source.getPlayer();
 
         if (player == null) {
-            source.sendFailure(Component.literal("/sync can only be used by a player"));
+            source.sendFailure(Component.translatable("commands.building_dimension.sync.player_only"));
             return 0;
         }
 
         try {
-            return sync(player, source.getServer(), radius);
+            return sync(player, source, radius);
         } catch (Exception e) {
             Constants.LOG.error("Failed to sync chunks for player {}", player.getName().getString(), e);
-            source.sendFailure(Component.literal("Failed to sync chunks: " + e.getMessage()));
+            source.sendFailure(Component.translatable("commands.building_dimension.sync.failed", e.getMessage()));
             return 0;
         }
     }
 
-    private static int sync(ServerPlayer player, MinecraftServer server, int radius) {
+    private static int sync(ServerPlayer player, CommandSourceStack source, int radius) {
+        MinecraftServer server = source.getServer();
+        int maxRadius = BuildingDimensionConfig.syncMaxRadius();
+        boolean isOp = source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER);
+        int effectiveRadius = radius;
+        if (!isOp && effectiveRadius > maxRadius) {
+            effectiveRadius = maxRadius;
+            player.sendSystemMessage(Component.translatable("commands.building_dimension.sync.radius_capped", maxRadius));
+        }
+
         ResourceKey<Level> current = player.level().dimension();
         boolean inBuildingDimension = BuildingDimensions.isBuildingDimension(current);
 
         Optional<ResourceKey<Level>> counterpart = BuildingDimensions.counterpartOf(server, current);
         if (counterpart.isEmpty()) {
-            player.sendSystemMessage(Component.literal("Failed to resolve a counterpart dimension to sync with"));
+            player.sendSystemMessage(Component.translatable("commands.building_dimension.sync.no_counterpart"));
             return 0;
         }
 
@@ -74,12 +91,12 @@ public class SyncCommand {
         ResourceKey<Level> buildingKey = inBuildingDimension ? current : counterpart.get();
 
         if (server.getLevel(sourceKey) == null) {
-            player.sendSystemMessage(Component.literal("The source dimension is not loaded"));
+            player.sendSystemMessage(Component.translatable("commands.building_dimension.sync.source_not_loaded"));
             return 0;
         }
 
         if (server.getLevel(buildingKey) == null) {
-            player.sendSystemMessage(Component.literal("The building dimension is not loaded"));
+            player.sendSystemMessage(Component.translatable("commands.building_dimension.sync.building_not_loaded"));
             return 0;
         }
 
@@ -88,14 +105,14 @@ public class SyncCommand {
         int centerZ = SectionPos.posToSectionCoord(pos.z);
 
         int queued = 0;
-        for (int dx = -radius; dx <= radius; dx++) {
-            for (int dz = -radius; dz <= radius; dz++) {
-                ChunkSync.enqueue(sourceKey, buildingKey, new ChunkPos(centerX + dx, centerZ + dz));
+        for (int dx = -effectiveRadius; dx <= effectiveRadius; dx++) {
+            for (int dz = -effectiveRadius; dz <= effectiveRadius; dz++) {
+                ChunkSync.enqueue(player.getUUID(), sourceKey, buildingKey, new ChunkPos(centerX + dx, centerZ + dz));
                 queued++;
             }
         }
 
-        player.sendOverlayMessage(Component.literal("Syncing " + queued + " chunk" + (queued == 1 ? "" : "s") + " into the building dimension..."));
+        player.sendOverlayMessage(Component.translatable("commands.building_dimension.sync.queued", queued));
         return 1;
     }
 }

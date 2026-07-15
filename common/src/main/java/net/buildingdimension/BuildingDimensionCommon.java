@@ -1,9 +1,12 @@
 package net.buildingdimension;
 
 import com.mojang.brigadier.CommandDispatcher;
+import net.buildingdimension.command.ConfigCommand;
 import net.buildingdimension.command.SwitchCommand;
 import net.buildingdimension.command.SyncCommand;
 import net.buildingdimension.config.BuildingDimensionConfig;
+import net.buildingdimension.config.SwitchWhitelist;
+import net.buildingdimension.dimension.BuildingDimensionWeather;
 import net.buildingdimension.dimension.ChunkSync;
 import net.buildingdimension.dimension.DimensionFactory;
 import net.buildingdimension.platform.Services;
@@ -19,6 +22,7 @@ public class BuildingDimensionCommon {
 
     public static void init() {
         BuildingDimensionConfig.load();
+        SwitchWhitelist.load();
         Constants.LOG.info("{} initialized on {}", Constants.MOD_NAME, Services.PLATFORM.getPlatformName());
     }
 
@@ -28,6 +32,7 @@ public class BuildingDimensionCommon {
     public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
         SwitchCommand.register(dispatcher);
         SyncCommand.register(dispatcher);
+        ConfigCommand.register(dispatcher);
     }
 
     /**
@@ -59,5 +64,18 @@ public class BuildingDimensionCommon {
      */
     public static void onServerTick(MinecraftServer server) {
         ChunkSync.tick(server);
+    }
+
+    /**
+     * Called by each loader once the server has fully stopped. Every piece of in-memory state this
+     * mod keeps static (queued/in-flight {@code /sync} jobs, per-level weather overrides, /switch
+     * cooldowns) is scoped to a single server instance; without this, a singleplayer player leaving
+     * one world for another would carry stale dimension keys and level references from the old
+     * world into the new one, corrupting or leaking into it.
+     */
+    public static void onServerStopped(MinecraftServer server) {
+        ChunkSync.reset();
+        BuildingDimensionWeather.reset();
+        SwitchCommand.clearCooldowns();
     }
 }

@@ -56,6 +56,15 @@ dependencies {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+// GameTest bodies (net.buildingdimension.test.*, shared with Fabric) have no business shipping in
+// the mod players actually download. Registering them is gated behind
+// Services.PLATFORM.isDevelopmentEnvironment() in BuildingDimensionNeoForge's constructor, so
+// excluding the classes from the packaged jar (they're still on the compileJava output used by
+// runGameTestServer/IDE runs, just not in the shippable jar) is safe.
+tasks.named('jar', Jar) {
+    exclude 'net/buildingdimension/test/**'
+}
+
 // Implement mcgradleconventions loader attribute
 def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
 ['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->

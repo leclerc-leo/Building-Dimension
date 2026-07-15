@@ -8,7 +8,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.portal.TeleportTransition;
-import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,8 +19,13 @@ import org.spongepowered.asm.mixin.injection.At;
  * {@code MinecraftServer#findRespawnDimension()} (the real overworld) — another escape route out of
  * a building dimension, the same class of bug {@link EntityMixin} already closes for portals: the
  * player would land back in the real world still in creative mode with their building-dimension
- * inventory. Redirect that fallback to respawn inside the building dimension itself, at its own
- * spawn point, whenever the player died there and vanilla would otherwise have sent them elsewhere.
+ * inventory. Redirect that fallback to respawn inside the building dimension itself, whenever the
+ * player died there and vanilla would otherwise have sent them elsewhere.
+ * <p>
+ * Respawns at the death position itself (adjusted to the nearest safe spot), not the building
+ * dimension's {@code getRespawnData()} — that's backed by {@code DerivedLevelData}, which mirrors
+ * the real overworld's spawn point/coordinates verbatim, so using it as-is could respawn the player
+ * over lava or void in, say, a building-nether counterpart.
  */
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin {
@@ -36,15 +40,14 @@ public abstract class ServerPlayerMixin {
         }
 
         ServerLevel buildingLevel = player.level();
-        LevelData.RespawnData respawnData = buildingLevel.getRespawnData();
-        BlockPos spawnPos = player.adjustSpawnLocation(buildingLevel, respawnData.pos());
+        BlockPos spawnPos = player.adjustSpawnLocation(buildingLevel, player.blockPosition());
 
         return new TeleportTransition(
             buildingLevel,
             Vec3.atBottomCenterOf(spawnPos),
             Vec3.ZERO,
-            respawnData.yaw(),
-            respawnData.pitch(),
+            player.getYRot(),
+            player.getXRot(),
             TeleportTransition.DO_NOTHING
         );
     }

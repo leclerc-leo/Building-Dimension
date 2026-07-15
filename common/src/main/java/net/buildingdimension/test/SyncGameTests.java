@@ -1,17 +1,34 @@
 package net.buildingdimension.test;
 
 import net.buildingdimension.dimension.BuildingDimensions;
+import net.buildingdimension.mixin.MinecraftServerAccessor;
+import net.buildingdimension.mixin.ServerLevelAccessor;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Util;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.storage.DerivedLevelData;
+import net.minecraft.world.level.storage.ServerLevelData;
+import net.minecraft.world.phys.AABB;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -102,8 +119,78 @@ public final class SyncGameTests {
         });
     }
 
+    /**
+     * Confirms the two riskiest pieces of {@code ChunkSync}'s copy logic: a block entity's actual
+     * contents (a chest's items, not just the chest block itself) and a decorative entity (an item
+     * frame, plus the item it's holding) both survive the source -> building copy. Uses its own
+     * custom dimension (the same way {@link SwitchGameTests#testSwitchFromCustomDimensionUsesNamespacedCounterpart}
+     * does) since overworld/nether/end are already claimed by the other tests in this class.
+     */
+    public static void testSyncCopiesChestContentsAndItemFrame(GameTestHelper helper) {
+        MinecraftServer server = server(helper);
+        ResourceKey<Level> customKey = ResourceKey.create(Registries.DIMENSION, Identifier.fromNamespaceAndPath("buildingdimensiontest", "sync_entities_land"));
+        ServerLevel customLevel = createModdedStyleDimension(server, customKey);
+
+        ServerPlayer player = spawnSurvivalPlayer(helper);
+        player.teleportTo(customLevel, 0.5, 64.0, 0.5, Set.of(), 0f, 0f, false);
+
+        BlockPos chestPos = player.blockPosition().offset(2, 0, 0);
+        customLevel.setBlockAndUpdate(chestPos, Blocks.CHEST.defaultBlockState());
+        if (customLevel.getBlockEntity(chestPos) instanceof ChestBlockEntity chest) {
+            chest.setItem(0, new ItemStack(Items.DIAMOND, 5));
+        }
+
+        ItemFrame itemFrame = new ItemFrame(customLevel, player.blockPosition().offset(3, 0, 0), Direction.NORTH);
+        itemFrame.setItem(new ItemStack(Items.EMERALD));
+        customLevel.addFreshEntity(itemFrame);
+
+        runSync(player, 1);
+
+        ResourceKey<Level> buildingKey = BuildingDimensions.buildingKeyOf(customKey);
+        helper.succeedWhen(() -> {
+            ServerLevel buildingLevel = server.getLevel(buildingKey);
+            helper.assertTrue(buildingLevel != null, "expected /sync to create the building dimension");
+            helper.assertTrue(buildingLevel.getBlockState(chestPos).is(Blocks.CHEST), "expected the chest block to be copied");
+            helper.assertTrue(
+                buildingLevel.getBlockEntity(chestPos) instanceof ChestBlockEntity copiedChest
+                    && copiedChest.getItem(0).is(Items.DIAMOND) && copiedChest.getItem(0).getCount() == 5,
+                "expected the chest's contents to be copied via its block entity"
+            );
+
+            AABB bounds = new AABB(chestPos).inflate(4);
+            List<ItemFrame> frames = buildingLevel.getEntities(EntityTypes.ITEM_FRAME, bounds, frame -> frame.getItem().is(Items.EMERALD));
+            helper.assertTrue(!frames.isEmpty(), "expected the item frame and its held item to be copied");
+        });
+    }
+
     private static MinecraftServer server(GameTestHelper helper) {
         return helper.getLevel().getServer();
+    }
+
+    private static ServerLevel createModdedStyleDimension(MinecraftServer server, ResourceKey<Level> key) {
+        ServerLevel overworld = server.overworld();
+        MinecraftServerAccessor serverAccessor = (MinecraftServerAccessor) server;
+        boolean tickTime = ((ServerLevelAccessor) overworld).buildingDimension$getTickTime();
+
+        LevelStem levelStem = new LevelStem(overworld.dimensionTypeRegistration(), overworld.getChunkSource().getGenerator());
+        ServerLevelData levelData = new DerivedLevelData(server.getWorldData(), server.getWorldData().overworldData());
+        long biomeZoomSeed = BiomeManager.obfuscateSeed(overworld.getSeed());
+
+        ServerLevel level = new ServerLevel(
+            server,
+            Util.backgroundExecutor(),
+            serverAccessor.buildingDimension$getStorageSource(),
+            levelData,
+            key,
+            levelStem,
+            server.getWorldData().isDebugWorld(),
+            biomeZoomSeed,
+            List.of(),
+            tickTime
+        );
+
+        serverAccessor.buildingDimension$getLevels().put(key, level);
+        return level;
     }
 
     @SuppressWarnings({"removal"})

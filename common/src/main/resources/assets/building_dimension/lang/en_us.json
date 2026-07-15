@@ -1,0 +1,25 @@
+{
+  "commands.building_dimension.switch.player_only": "/switch can only be used by a player",
+  "commands.building_dimension.switch.cooldown": "You must wait a few seconds between dimension switches",
+  "commands.building_dimension.switch.failed": "Failed to switch dimension: %s",
+  "commands.building_dimension.switch.denied": "You are not allowed to use /switch",
+  "commands.building_dimension.switch.no_counterpart": "Failed to resolve a counterpart dimension",
+  "commands.building_dimension.switch.target_not_loaded": "The target dimension is not loaded",
+
+  "commands.building_dimension.sync.player_only": "/sync can only be used by a player",
+  "commands.building_dimension.sync.failed": "Failed to sync chunks: %s",
+  "commands.building_dimension.sync.radius_capped": "Radius capped at %s (ask an operator to raise buildingDimension's syncMaxRadius, or grant operator)",
+  "commands.building_dimension.sync.no_counterpart": "Failed to resolve a counterpart dimension to sync with",
+  "commands.building_dimension.sync.source_not_loaded": "The source dimension is not loaded",
+  "commands.building_dimension.sync.building_not_loaded": "The building dimension is not loaded",
+  "commands.building_dimension.sync.queued": "Syncing %s chunk(s) into the building dimension...",
+  "commands.building_dimension.sync.complete": "Sync complete: %s chunk(s) copied into the building dimension",
+
+  "commands.building_dimension.config.reloaded": "Building Dimension config reloaded",
+  "commands.building_dimension.whitelist.added": "Added %s to the /switch whitelist",
+  "commands.building_dimension.whitelist.already_added": "%s is already on the /switch whitelist",
+  "commands.building_dimension.whitelist.removed": "Removed %s from the /switch whitelist",
+  "commands.building_dimension.whitelist.not_present": "%s was not on the /switch whitelist",
+  "commands.building_dimension.whitelist.empty": "The /switch whitelist is empty",
+  "commands.building_dimension.whitelist.list": "/switch whitelist: %s"
+}

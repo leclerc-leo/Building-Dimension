@@ -51,6 +51,9 @@ public class NeoForgeAccessoryHelper implements IAccessoryHelper {
                 handler.setStackInSlot(i, items.get(index).copy());
             }
         }
+        if (index < items.size()) {
+            IAccessoryHelper.depositOverflow(player, items.subList(index, items.size()));
+        }
     }
 
     @Override

@@ -15,6 +15,7 @@ public class BuildingDimensionFabric implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
             BuildingDimensionCommon.registerCommands(dispatcher));
         ServerLifecycleEvents.SERVER_STARTED.register(BuildingDimensionCommon::onServerStarted);
+        ServerLifecycleEvents.SERVER_STOPPED.register(BuildingDimensionCommon::onServerStopped);
         ServerTickEvents.END_SERVER_TICK.register(BuildingDimensionCommon::onServerTick);
     }
 }

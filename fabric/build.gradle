@@ -22,6 +22,14 @@ fabricApi {
     }
 }
 
+// GameTest bodies (net.buildingdimension.test.*, shared with NeoForge) have no business shipping
+// in the mod players actually download — they're only ever loaded by Fabric API's own gametest
+// runner (the "fabric-gametest" entrypoint, resolved only by -Dfabric-api.gametest=true runs),
+// never during ordinary client/server boot, so excluding them from the packaged jar is safe.
+tasks.named('jar', Jar) {
+    exclude 'net/buildingdimension/test/**'
+}
+
 loom {
     def aw = project(':common').file("src/main/resources/${mod_id}.accesswidener")
     if (aw.exists()) {

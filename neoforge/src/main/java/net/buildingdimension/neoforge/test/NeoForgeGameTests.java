@@ -1,6 +1,7 @@
 package net.buildingdimension.neoforge.test;
 
 import net.buildingdimension.Constants;
+import net.buildingdimension.test.AccessGameTests;
 import net.buildingdimension.test.AccessoryGameTests;
 import net.buildingdimension.test.DeathGameTests;
 import net.buildingdimension.test.DisconnectGameTests;
@@ -62,6 +63,11 @@ public final class NeoForgeGameTests {
         register("accessory_slot_round_trips_when_accessory_mod_installed", AccessoryGameTests::testAccessorySlotRoundTripsWhenAccessoryModInstalled);
         register("mob_griefing_disabled_by_default", GameRulesGameTests::testMobGriefingDisabledByDefault);
         register("mob_spawning_disabled_by_default", GameRulesGameTests::testMobSpawningDisabledByDefault);
+        register("default_access_is_unrestricted", AccessGameTests::testDefaultAccessIsUnrestricted);
+        register("op_required_denies_non_operator", AccessGameTests::testOpRequiredDeniesNonOperator);
+        register("op_required_with_spectator_fallback_allows_spectator", AccessGameTests::testOpRequiredWithSpectatorFallbackAllowsSpectator);
+        register("whitelist_gates_access", AccessGameTests::testWhitelistGatesAccess);
+        register("sync_copies_chest_contents_and_item_frame", SyncGameTests::testSyncCopiesChestContentsAndItemFrame);
     }
 
     private NeoForgeGameTests() {
@@ -100,6 +106,11 @@ public final class NeoForgeGameTests {
         registerInstance(event, environment, "accessory_slot_round_trips_when_accessory_mod_installed", 40);
         registerInstance(event, environment, "mob_griefing_disabled_by_default", 40);
         registerInstance(event, environment, "mob_spawning_disabled_by_default", 40);
+        registerInstance(event, environment, "default_access_is_unrestricted", 40);
+        registerInstance(event, environment, "op_required_denies_non_operator", 40);
+        registerInstance(event, environment, "op_required_with_spectator_fallback_allows_spectator", 40);
+        registerInstance(event, environment, "whitelist_gates_access", 40);
+        registerInstance(event, environment, "sync_copies_chest_contents_and_item_frame", 200);
     }
 
     private static void registerInstance(RegisterGameTestsEvent event, Holder<TestEnvironmentDefinition<?>> environment, String name, int maxTicks) {
